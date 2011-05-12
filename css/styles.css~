@@ -1,7 +1,5 @@
 #mainContainer {
-    background:white;
-border: 1px;
+    background:black;
     height:200px;
     width:300px;
 }
-
