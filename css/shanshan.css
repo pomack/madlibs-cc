@@ -1,0 +1,34 @@
+/*Shanshan*/
+/*layout*/
+#mainContainer{
+	width:400px;
+	float:left;
+}
+#toolbar{
+	width:300px;
+	margin-left:450px;
+}
+/*text fields*/
+.highlight{
+	color:red;
+}
+.tagthis{
+	/*text-indent:-9999em;*/
+}
+
+/*draggable*/
+span p{color:blue;}
+#auto-suggest li{
+	padding:10px;
+	border:1px solid #ccc;
+	margin-bottom:1px;
+	cursor:move;
+}
+.droppable { 
+	width: 150px; 
+	height: 150px; 
+	padding: 0.5em; 
+	float: left; 
+	margin: 10px; 
+}
+	
