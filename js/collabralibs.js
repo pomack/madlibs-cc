@@ -7,8 +7,10 @@
 $(function () {
 
 	$('#mainContainer').bind('mouseup', function () { 
-		var r = window.getSelection().getRangeAt(0).cloneRange();
+		var sr = window.getSelection().getRangeAt(0).cloneRange();
+		
 		if (r.toString() == '') console.log('nothing selected'); else console.log(r.toString());
+		
 	}
 );
 	
