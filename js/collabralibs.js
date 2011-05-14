@@ -1,10 +1,11 @@
 // Self loading-function
 (function () {
     var element = $('#mainContainer');
-    //console.log(element);
+    /*shanshan*/
+	
 })();
 
-$(function () {
+/*$(function () {
 
 	$('#mainContainer').bind('mouseup', function () { 
 		var sr = window.getSelection().getRangeAt(0).cloneRange();
@@ -15,4 +16,4 @@ $(function () {
 );
 	
 });
-
+*/
