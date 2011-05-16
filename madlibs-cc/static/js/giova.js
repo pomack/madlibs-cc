@@ -60,7 +60,7 @@
     // var getDataFromAppEngine = function() {
     //     
     //     var receivedData = $.ajax({
-    //         url: 'http://localhost:8080/store/',
+    //         url: 'http://localhost:8080/store/?id',
     //         contentType: 'application/json',
     //         type: 'GET',
     //         data: data,
