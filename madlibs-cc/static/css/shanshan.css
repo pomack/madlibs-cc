@@ -15,7 +15,10 @@
 .tagthis{
 	/*text-indent:-9999em;*/
 }
-
+input{
+	border:none;
+	border-bottom:1px solid #ccc;
+}
 /*draggable*/
 span p{color:blue;}
 #auto-suggest li{
