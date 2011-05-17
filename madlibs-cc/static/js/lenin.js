@@ -1,6 +1,28 @@
 // Lenin's JS file
 
 var authorMode = authorMode || {};
+var currentId = '';
+
+authorMode.Tag = function Tag (id) { 
+	this.id = id;
+	this.originalValue = '';
+	this.description = '';
+	this.POSSuggestion = '';
+}
+
+authorMode.Tag.prototype.setOriginalValue = function(ov) {
+	this.originalValue = ov;
+}
+
+authorMode.Tag.prototype.setDescription = function(desc) { 
+	this.description = desc;
+}
+
+authorMode.Tag.prototype.setPOSSuggestion = function(sugg) {
+	this.POSSuggestion = sugg;
+}
+
+authorMode.Tags = new Array();
 
 function logVar(varname) {
 	console.log(varname + ": " + window[varname]);
@@ -21,6 +43,10 @@ authorMode.getUniqueID = function(prefix) {
 	while (document.getElementById(prefix + i)) i++;
 	
 	return prefix + i;
+}
+
+authorMode.cancelCurrentSelection = function () {
+		
 }
 
 authorMode.processSelection = function ()  {
@@ -73,7 +99,7 @@ authorMode.processSelection = function ()  {
 			$(x).attr('id', this.getUniqueID('tag-'));
 			r.surroundContents(x);
 			//console.log("added unique ID " + $(x).attr('id'));
-			DoTag(x);
+			this.DoTag(x);
 			
 		}
 		
@@ -84,16 +110,36 @@ authorMode.processSelection = function ()  {
 }	
 
 
-function DoTag(tag) {
+authorMode.DoTag = function(tagSpan) {
+	// create a new tag
+	var currentTag = new this.Tag($(tagSpan).attr('id'));
+	currentTag.setOriginalValue($(tagSpan).text());
 	
+	
+	$('#authorModeOriginalValueValue').text();
+	$('#authorModeToolbox').fadeIn(200);
+	$('#authorModeToolboxSaveButon').bind('click', function() {
+		// validate
+		// ...
+		
+		currentTag.setDescription($('#tagDesc').val());
+		currentTag.setPOSSuggestion($('#tagPOS').val());
+		authorMode.Tags.push(currentTag);
+		
+	});
 }
 	
 	
 $(function () {
 	// it is likely that none of this will work with IE prior to version 9
 	
+	$('#authorModeToolbox').hide();
 	$('#mainContainer').bind('mouseup', 
 		function () { authorMode.processSelection(); } );
+	$('#authorModeToolboxCancel').bind('click', function() {
+		authorMode.cancelCurrentSelection();
+	});
+	
 }
 );
 
