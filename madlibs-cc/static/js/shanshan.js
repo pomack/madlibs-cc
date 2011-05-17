@@ -5,18 +5,31 @@ $(document).ready(function(){
   	//Consider so far we have all the spans tagged, and tag informaiton populated.
 	playerMode.enableEditHelper();
 	playerMode.dragDropHelper.dragMode();
-	
+	playerMode.dragDropHelper.dropMode();
+			
+	toolbarUI.openToolbar();
 });
 
 //global: toolbar UI, CAN BE REUSED FOR LENIN
 var toolbarUI = toolbarUI || {};
+toolbarUI.sideToolbar = $("#toolbar"); 
 
 toolbarUI.openToolbar = function(){
-	document.getElementById("toolbar").show();
+	var el = toolbarUI.sideToolbar; //declaing dependency
+		el.onkeydown = function(evt) {
+	    evt = evt || window.event;
+	    alert("keydown: " + evt.keyCode);
+		el.show();
+	};
 }
 
 toolbarUI.closeToolbar = function(){
-	document.getElementById("toolbar").hide();
+	var el = toolbarUI.sideToolbar; //declaing dependency
+		el.onkeydown = function(evt) {
+	    evt = evt || window.event;
+	    alert("keydown: " + evt.keyCode);
+		el.hide();
+	};
 }
 
 //global: player mode object
@@ -24,10 +37,7 @@ var playerMode = playerMode || {};
 //Todo: save the input data into an array
 playerMode.saveArray = [];
 
-
-
 //Todo: add event: click to enable input, mouseup to validate and disable input
-//1. Access Player Mode: enable all input fields
 playerMode.enableEditHelper = function(){
 	var elementSpan = document.getElementsByClassName("tagthis");
 	for(var i=0; i<elementSpan.length; i++){
@@ -35,48 +45,59 @@ playerMode.enableEditHelper = function(){
 	}
 }
 
-
-playerMode.toggleSideToolbar = function(){
-	var sideToolbar = document.getElementById("toolbar");
-	//start type in form, click on the toolbar handle, open the toolbar panel.
-	$("input","#mainContainer").bind("keyUp",toolbarUI.openToolbar);
-	
-}
-
 //Drag/Drop Object
 playerMode.dragDropHelper = {};
 playerMode.dragDropHelper.draggedValue = "";
+playerMode.dragDropHelper.dropBoolean = false;
 playerMode.dragDropHelper.dragMode = function(){
 	$("span","#auto-suggest").draggable({ 
 		snap: '.ui-widget-header',
+		start: function(event,ui){
+			var newDrag = $(this).clone();
+			newDrag.appendTo($(this).parent());
+			newDrag.draggable('enable');
+			
+		},
 		drag: function(event,ui){
 			playerMode.dragDropHelper.draggedValue = $(this).html();
 			playerMode.saveArray.push(playerMode.dragDropHelper.draggedValue);
-			//todo: clone the value
-			
-			//console.log(playerMode.saveArray[0]);
-			playerMode.dragDropHelper.dropMode();
 		},
-		drop: function(event,ui){
-			//stop the drag 
-			//$("span.ui-widget-header").find("input").val(playerMode.dragDropHelper.draggedValue);
+		stop: function(event,ui){
+			var AllInput = $("span.ui-widget-header").find("input");
+			//detect where the draggable item is, find the nearest input field
+			
+			var targetInput = playerMode.dragDropHelper.dropMode();
+			console.log(targetInput);
+			if (playerMode.dragDropHelper.dropBoolean) {
+				console.log("inside Droppable");
+				//targetInput.val(playerMode.dragDropHelper.draggedValue);
+			}else{
+				console.log("outside droppable");
+			}
+			$(this).remove();
 		}
 		}).disableSelection();
 	
 };
+
 playerMode.dragDropHelper.dropMode = function(){
 	$("span.ui-widget-header").droppable({
 		accept: ".draggable",
+		activate: function(event,ui){
+			$(this).addClass("lightup");
+		},
 		drop: function( event, ui ) {
-			$(this).find("input").val(playerMode.dragDropHelper.draggedValue);
-			console.log("dropped");
+			playerMode.dragDropHelper.dropBoolean = true;
+			var targetInput = $(this).find("input");
+			targetInput.val(playerMode.dragDropHelper.draggedValue);
+			//return $(this);
 		},
 		out: function(event,ui){
-			$(this).find("input").val("");
-			console.log("drag out");
+			playerMode.dragDropHelper.dropBoolean = false;
 		}
 	});
 };
+
 	
 //Text Field object : input mode and dropable mode
 playerMode.textFieldHelper = {};

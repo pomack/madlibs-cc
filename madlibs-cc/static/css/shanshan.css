@@ -7,17 +7,21 @@
 #toolbar{
 	width:300px;
 	margin-left:450px;
-	display:none;
+	
 }
 #toolbar #auto-suggest{
-	display:none;
+	
 }
+
 /*text fields*/
 .highlight{
 	color:red;
 }
 .tagthis{
 	/*text-indent:-9999em;*/
+}
+.lightup{
+	background:blue;
 }
 input{
 	border:none;
