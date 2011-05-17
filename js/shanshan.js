@@ -8,7 +8,7 @@ $(document).ready(function(){
 	
 });
 
-var playerMode = {};
+var playerMode = playerMode || {};
 //Todo: save the input data into an array
 playerMode.saveArray = [];
 
@@ -23,6 +23,14 @@ playerMode.enableEditHelper = function(){
 	}
 }
 
+
+playerMode.toggleSideToolbar = function(){
+	var sideToolbar = document.getElementById("toolbar");
+	//start type in form, click on the toolbar handle, open the toolbar panel.
+	
+	
+}
+
 //Drag/Drop Object
 playerMode.dragDropHelper = {};
 playerMode.dragDropHelper.draggedValue = "";
@@ -32,10 +40,13 @@ playerMode.dragDropHelper.dragMode = function(){
 		drag: function(event,ui){
 			playerMode.dragDropHelper.draggedValue = $(this).html();
 			playerMode.saveArray.push(playerMode.dragDropHelper.draggedValue);
+			//todo: clone the value
+			
 			//console.log(playerMode.saveArray[0]);
 			playerMode.dragDropHelper.dropMode();
 		},
 		drop: function(event,ui){
+			//stop the drag 
 			//$("span.ui-widget-header").find("input").val(playerMode.dragDropHelper.draggedValue);
 		}
 		}).disableSelection();
@@ -55,7 +66,6 @@ playerMode.dragDropHelper.dropMode = function(){
 	});
 };
 	
-
 //Text Field object : input mode and dropable mode
 playerMode.textFieldHelper = {};
 playerMode.textFieldHelper.typeMode = function(){
@@ -67,7 +77,7 @@ playerMode.textFieldHelper.dropMode = function(){
 //auto search object: populate results, enable dragging
 
 
-//Todo: drop the result to the input hot area
+
 	
 	
 	

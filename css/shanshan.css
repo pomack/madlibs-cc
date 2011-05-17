@@ -7,6 +7,10 @@
 #toolbar{
 	width:300px;
 	margin-left:450px;
+	
+}
+#toolbar #auto-suggest{
+	
 }
 /*text fields*/
 .highlight{
