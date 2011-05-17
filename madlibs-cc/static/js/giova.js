@@ -8,7 +8,7 @@
      */
     var getDataFromHtml = function() {
 
-        var madlibContainer, madlibTitle, madlibBody, madlibObject, madlibString, data, sent, received, receivedAndParsed;
+        var madlibContainer, madlibTitle, madlibBody, madlibObject, madlibString, insertedData, sent, received, receivedAndParsed;
 
         /**
          *  get elements we want to retrieve data from
@@ -74,4 +74,5 @@
     getDataFromAppEngine(function (receivedData) {
         console.log(receivedData); 
     });
+
 })();
