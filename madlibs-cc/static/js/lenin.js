@@ -1,5 +1,7 @@
 // Lenin's JS file
-
+function logVar(varname) {
+	console.log(varname + ": " + window[varname]);
+}
 function toggleHighlight(obj) {
 	if ($(obj).hasClass('highlight')) 
 		$(obj).removeClass('highlight');
@@ -50,7 +52,7 @@ $(function () {
 		 		//endPos--;
 		 		// expand the selection
 		 			// work backwards
-		 		console.log("Chart at startpos: " + startNode.nodeValue.charAt(startPos) + " endpos: " + endNode.nodeValue.charAt(endPos));
+		 		console.log("Char at startpos: " + startNode.nodeValue.charAt(startPos) + " endpos: " + endNode.nodeValue.charAt(endPos));
 		 		var rx = /[ ./?',<>;"$()\[\]\\]/g;
 		 		 
 		 		while (rx.test(startNode.nodeValue.charAt(startPos)) && startPos < startNode.nodeValue.length) startPos++;

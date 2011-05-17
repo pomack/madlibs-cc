@@ -43,6 +43,15 @@ class StoreHandler(webapp.RequestHandler):
             output_json = True
         else:
             text = self.request.get('text')
+
+        try:
+            text = unicode(text, encoding='utf-8')
+        except:
+            try:
+                text = unicode(text, encoding='windows-1252')
+            except:
+                text = unicode(text)
+
         if not text:
             self.response.set_status(400)
             self.response.out.write('{"msg": "Must specify a body or a text field"}')

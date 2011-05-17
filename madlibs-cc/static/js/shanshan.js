@@ -8,6 +8,18 @@ $(document).ready(function(){
 	
 });
 
+//global: toolbar UI, CAN BE REUSED FOR LENIN
+var toolbarUI = toolbarUI || {};
+
+toolbarUI.openToolbar = function(){
+	document.getElementById("toolbar").show();
+}
+
+toolbarUI.closeToolbar = function(){
+	document.getElementById("toolbar").hide();
+}
+
+//global: player mode object
 var playerMode = playerMode || {};
 //Todo: save the input data into an array
 playerMode.saveArray = [];
@@ -27,7 +39,7 @@ playerMode.enableEditHelper = function(){
 playerMode.toggleSideToolbar = function(){
 	var sideToolbar = document.getElementById("toolbar");
 	//start type in form, click on the toolbar handle, open the toolbar panel.
-	
+	$("input","#mainContainer").bind("keyUp",toolbarUI.openToolbar);
 	
 }
 

@@ -7,10 +7,10 @@
 #toolbar{
 	width:300px;
 	margin-left:450px;
-	
+	display:none;
 }
 #toolbar #auto-suggest{
-	
+	display:none;
 }
 /*text fields*/
 .highlight{
