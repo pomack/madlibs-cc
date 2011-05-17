@@ -8,7 +8,7 @@
      */
     var getDataFromHtml = function() {
 
-        var madlibContainer, madlibTitle, madlibBody, madlibObject, madlibString, data, sent;
+        var madlibContainer, madlibTitle, madlibBody, madlibObject, madlibString, insertedData, sent, received, receivedAndParsed;
 
         /**
          *  get elements we want to retrieve data from
@@ -39,7 +39,7 @@
     var sendDataToAppEngine = function(data) {
         
         $.ajax({
-            url: 'http://localhost:8080/store/',
+            url: 'http://localhost:8090/store/',
             contentType: 'application/json',
             processData: 'false',
             type: 'POST',
@@ -49,7 +49,7 @@
                 console.log('succeded');
             },
             complete: function() {
-                console.log('complete');
+                console.log('completed');
             }
         });
     };
@@ -57,25 +57,22 @@
     /**
      *  getDataFromAppEngine
      */
-    // var getDataFromAppEngine = function() {
-    //     
-    //     var receivedData = $.ajax({
-    //         url: 'http://localhost:8080/store/?id',
-    //         contentType: 'application/json',
-    //         type: 'GET',
-    //         data: data,
-    //         dataType: 'json',
-    //         success: function() {
-    //             console.log(data);
-    //         }
-    //     });
-
-    //     return receivedData;
-    // };
+    var getDataFromAppEngine = function(f) {
+        $.ajax({
+            url: 'http://localhost:8090/view/agptYWRsaWJzLWNjcgsLEgVTdG9yeRgEDA/',
+            contentType: 'application/json',
+            type: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                f(data);
+            }
+        });
+    };
     
-    data = getDataFromHtml();
-    sent = sendDataToAppEngine(data);
-    // received = getDataFromAppEngine();
-    // console.log(received);
+    insertedData = getDataFromHtml();
+    sent = sendDataToAppEngine(insertedData);
+    getDataFromAppEngine(function (receivedData) {
+        console.log(receivedData); 
+    });
 
 })();
