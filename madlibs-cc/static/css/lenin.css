@@ -1,1 +1,8 @@
 .highlight {background-color: yellow;}
+div.authorMode {border: 1px solid; color: black; padding: 5px;}
+input.authorMode {
+	border: 1px solid #ccc;
+	font-family: Helvetica;
+	color: red;
+	border-bottom:1px solid #ccc;
+}
