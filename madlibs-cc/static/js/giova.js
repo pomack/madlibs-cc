@@ -31,6 +31,16 @@
         return madlibString;
     };
 
+    var saveTaggedStory = function() {
+
+    }
+    
+    
+
+    var clearTaggedStory = function() {
+
+    }
+
     /**
      *  sendDataToAppEngine sends the returned string 
      *  from getDataFromHtml to our appEngine /store/
@@ -39,7 +49,7 @@
     var sendDataToAppEngine = function(data) {
         
         $.ajax({
-            url: 'http://localhost:8090/store/',
+            url: 'http://localhost:8080/store/',
             contentType: 'application/json',
             processData: 'false',
             type: 'POST',
@@ -59,7 +69,7 @@
      */
     var getDataFromAppEngine = function(f) {
         $.ajax({
-            url: 'http://localhost:8090/view/agptYWRsaWJzLWNjcgsLEgVTdG9yeRgEDA/',
+            url: 'http://localhost:8080/view/agptYWRsaWJzLWNjcgsLEgVTdG9yeRgEDA/',
             contentType: 'application/json',
             type: 'GET',
             dataType: 'json',
