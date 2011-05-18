@@ -3,6 +3,11 @@
 var authorMode = authorMode || {};
 var currentId = '';
 
+function Status(t) {
+	$('#toolbarStatusMsg').text(t).show(500, function() {
+		setTimeout(function() {$('#toolbarStatusMsg').hide(500);}, 1000);
+	});
+}
 authorMode.Tag = function Tag (id) { 
 	this.id = id;
 	this.originalValue = '';
@@ -109,23 +114,41 @@ authorMode.processSelection = function ()  {
 	//normalize();
 }	
 
+authorMode.editTag = function(tag) {
+	// find the tag in the Tags array
+	for (var i = 0; i < this.Tags.length; i++)
+	{
+		if (Tags[i].id == $(tag).attr('id'))
+		{
+			
+		}
+	}
+}
 
+authorMode.saveTags = function() {
+	
+	// *** Be sure to re-sort tags list in order of appearance
+}
 authorMode.DoTag = function(tagSpan) {
 	// create a new tag
-	var currentTag = new this.Tag($(tagSpan).attr('id'));
-	currentTag.setOriginalValue($(tagSpan).text());
 	
-	
-	$('#authorModeOriginalValueValue').text();
+	$('#authorModeOriginalValueValue').text($(tagSpan).text());
 	$('#authorModeToolbox').fadeIn(200);
 	$('#authorModeToolboxSaveButon').bind('click', function() {
 		// validate
 		// ...
-		
+		var currentTag = new authorMode.Tag($(tagSpan).attr('id'));
+		currentTag.setOriginalValue($(tagSpan).text());
+	
 		currentTag.setDescription($('#tagDesc').val());
 		currentTag.setPOSSuggestion($('#tagPOS').val());
 		authorMode.Tags.push(currentTag);
+		Status('saved!');
+		//clear values
+		$('#tagDesc,#tagPOS').val('');
 		
+		// now bind the tag editor 
+		$(this).unbind('click');
 	});
 }
 	

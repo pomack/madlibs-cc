@@ -6,3 +6,9 @@ input.authorMode {
 	color: red;
 	border-bottom:1px solid #ccc;
 }
+.toolbarStatusClass {
+	color:red;
+	font-weight: bold;
+	font-family: Helvetica;
+	display: none;
+}
