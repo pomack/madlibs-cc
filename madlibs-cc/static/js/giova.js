@@ -1,4 +1,6 @@
 (function() {
+
+    var getDataFromHtml, sendDataToAppEngine, getDataFromAppEngine, insertedData, sent;
     
     /**
      *  getDataFromHtml simply gathers the DOM elements 
@@ -6,16 +8,16 @@
      *  into an object and returns a string version of 
      *  that object
      */
-    var getDataFromHtml = function() {
+    getDataFromHtml = function() {
 
-        var madlibContainer, madlibTitle, madlibBody, madlibObject, madlibString, insertedData, sent;
+        var madlibContainer, madlibTitle, madlibBody, madlibObject, madlibString, saveTaggedStory, clearTaggedStory, saveButton, deleteButton; 
 
         /**
          *  get elements we want to retrieve data from
          */
         madlibContainer = $('article');
-        madlibTitle = madlibContainer.children('.title').text();
-        madlibBody = madlibContainer.children('.body').text();
+        madlibTitle = madlibContainer.children('.title').html();
+        madlibBody = madlibContainer.children('.body').html();
 
         /**
          *  insert data from elements into object properties
@@ -23,7 +25,7 @@
         madlibObject = {};
         madlibObject.title = madlibTitle;
         madlibObject.body = madlibBody;
-        
+
         /**
          *  convert object to a json string and return
          */
@@ -31,14 +33,24 @@
         return madlibString;
     };
 
-    var saveTaggedStory = function() {
+    /**
+     *  save tagged story 
+     */
+    saveTaggedStory = function() {
+       var taggedStory;
+       taggedStory = getDataFromHtml();
+       sendDataToAppEngine(taggedStory);
+    };
 
-    }
-    
-    
+    /**
+     *  clear tagged story  
+     */
+    clearTaggedStory = function() {
 
-    var clearTaggedStory = function() {
+        // Empty out the array of tags
+        authorMode.Tags = [];
 
+        // TODO Strip all span tags that are surrounding a highlighted word
     }
 
     /**
@@ -46,7 +58,7 @@
      *  from getDataFromHtml to our appEngine /store/
      *  using jQuery's ajax method
      */
-    var sendDataToAppEngine = function(data) {
+    sendDataToAppEngine = function(data) {
         
         $.ajax({
             url: 'http://localhost:8080/store/',
@@ -67,9 +79,10 @@
     /**
      *  getDataFromAppEngine
      */
-    var getDataFromAppEngine = function(f) {
+    getDataFromAppEngine = function(f) {
+
         $.ajax({
-            url: 'http://localhost:8080/view/agptYWRsaWJzLWNjcgsLEgVTdG9yeRgEDA/',
+            url: 'http://localhost:8080/list/',
             contentType: 'application/json',
             type: 'GET',
             dataType: 'json',
@@ -79,10 +92,15 @@
         });
     };
     
+    // function calls
     insertedData = getDataFromHtml();
     sent = sendDataToAppEngine(insertedData);
     getDataFromAppEngine(function (receivedData) {
         console.log(receivedData); 
     });
+    saveButton = $('#save_button');    
+    saveButton.bind('click', saveTaggedStory);
+    deleteButton = $('#delete_button');
+    deleteButton.bind('click', clearTaggedStory);
 
 })();
