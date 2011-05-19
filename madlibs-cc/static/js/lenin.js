@@ -1,19 +1,23 @@
 // Lenin's JS file
 
 var authorMode = authorMode || {};
-var currentId = '';
+var currentTag = {};
 
 function Status(t) {
 	$('#toolbarStatusMsg').text(t).show(500, function() {
 		setTimeout(function() {$('#toolbarStatusMsg').hide(500);}, 1000);
 	});
 }
-authorMode.Tag = function Tag (id) { 
+
+authorMode.Tag = function Tag (id, originalValue) { 
 	this.id = id;
-	this.originalValue = '';
+	this.originalValue = originalValue;
 	this.description = '';
 	this.POSSuggestion = '';
+	this.hasBeenSet = false;
 }
+
+authorMode.Tag.prototype.set = function () { this.hasBeenSet = true; }
 
 authorMode.Tag.prototype.setOriginalValue = function(ov) {
 	this.originalValue = ov;
@@ -27,11 +31,12 @@ authorMode.Tag.prototype.setPOSSuggestion = function(sugg) {
 	this.POSSuggestion = sugg;
 }
 
-authorMode.Tags = new Array();
+authorMode.Tags = {}; //new Array();
 
 function logVar(varname) {
 	console.log(varname + ": " + window[varname]);
 }
+
 authorMode.toggleHighlight = function(obj) {
 	if ($(obj).hasClass('highlight')) 
 		$(obj).removeClass('highlight');
@@ -50,17 +55,15 @@ authorMode.getUniqueID = function(prefix) {
 	return prefix + i;
 }
 
-authorMode.cancelCurrentSelection = function () {
-		
-}
-
 authorMode.processSelection = function ()  {
 	
 	var sr = window.getSelection();
-	var r = sr.getRangeAt(0);
+	
 	if (sr.toString().trim() != '')  {
-		 
-		 var startNode, endNode, startPos, endPos;
+		
+		var r = sr.getRangeAt(0);	 
+		
+		var startNode, endNode, startPos, endPos;
 		 
 		 
 		 // should we be cloning the node?  loses the parent stuff
@@ -101,10 +104,18 @@ authorMode.processSelection = function ()  {
 	 		r.setEnd(endNode, endPos-1);
 			var x = this.ce('span');
 			this.toggleHighlight(x);
-			$(x).attr('id', this.getUniqueID('tag-'));
+			var tagId = this.getUniqueID('tag-');
+			$(x).attr('id', tagId);
 			r.surroundContents(x);
 			//console.log("added unique ID " + $(x).attr('id'));
-			this.DoTag(x);
+
+			$(x).bind('click', function () {
+				
+				authorMode.editTag(tagId);
+				
+			});
+			
+			$(x).trigger('click');
 			
 		}
 		
@@ -114,42 +125,60 @@ authorMode.processSelection = function ()  {
 	//normalize();
 }	
 
-authorMode.editTag = function(tag) {
-	// find the tag in the Tags array
-	for (var i = 0; i < this.Tags.length; i++)
-	{
-		if (Tags[i].id == $(tag).attr('id'))
-		{
-			
-		}
+authorMode.removeTag = function(id) {
+
+	if (authorMode.Tags[id]) {
+		$('#' + id).contents().unwrap().unbind('click');
+		
+		delete authorMode.Tags[id];
+		if (!authorMode.Tags[id]) Status("Tag removed!"); else Status("Tag removal failed...");
 	}
+	
+}
+
+authorMode.editTag = function(id) {
+	
+	// disable other selections
+	disableSelect();
+	$('#mainContainer').addClass('disabled');
+	
+	// if this is a new tag, add it to the Tags object
+	if (!authorMode.Tags[id]) authorMode.Tags[id] = new authorMode.Tag(id, $('#' + id).text());	
+
+	currentTag = authorMode.Tags[id];
+	
+	// populate the spans in the toolbox
+	$('#authorModeOriginalValueValue').text(currentTag.originalValue);
+	$('#tagDesc').val(currentTag.description);
+	$('#tagPOS').val(currentTag.POSSuggestion);
+	
+	// show the toolbox
+	$('#authorModeToolbox').show();
+	
+
 }
 
 authorMode.saveTags = function() {
-	
-	// *** Be sure to re-sort tags list in order of appearance
+		
+		currentTag.setDescription($('#tagDesc').val());
+		currentTag.setPOSSuggestion($('#tagPOS').val());
+
+		currentTag.set();
+		authorMode.Tags[currentTag.id] = currentTag;
+		
+		if (authorMode.Tags[currentTag.id] === currentTag) Status('saved!'); else Status('Save failed!');
+		//clear values
+		$('#authorModeToolbox').hide();
+		$('#tagDesc,#tagPOS').val('');
+		enableSelect();	
 }
+
 authorMode.DoTag = function(tagSpan) {
 	// create a new tag
 	
-	$('#authorModeOriginalValueValue').text($(tagSpan).text());
-	$('#authorModeToolbox').fadeIn(200);
-	$('#authorModeToolboxSaveButon').bind('click', function() {
-		// validate
-		// ...
-		var currentTag = new authorMode.Tag($(tagSpan).attr('id'));
-		currentTag.setOriginalValue($(tagSpan).text());
 	
-		currentTag.setDescription($('#tagDesc').val());
-		currentTag.setPOSSuggestion($('#tagPOS').val());
-		authorMode.Tags.push(currentTag);
-		Status('saved!');
-		//clear values
-		$('#tagDesc,#tagPOS').val('');
-		
-		// now bind the tag editor 
-		$(this).unbind('click');
-	});
+	
+	
 }
 	
 	
@@ -157,12 +186,37 @@ $(function () {
 	// it is likely that none of this will work with IE prior to version 9
 	
 	$('#authorModeToolbox').hide();
-	$('#mainContainer').bind('mouseup', 
-		function () { authorMode.processSelection(); } );
-	$('#authorModeToolboxCancel').bind('click', function() {
-		authorMode.cancelCurrentSelection();
+	enableSelect();
+
+	
+		$('#authorModeToolboxSaveButton').bind('click', function() {
+			authorMode.saveTags();
+	});
+	
+	$('#authorModeToolboxCancelButton').bind('click', function() {
+		if (!currentTag.hasBeenSet) authorMode.removeTag(currentTag.id);
+		$('#authorModeToolbox').hide();
+		enableSelect();
+		
+	});
+	
+	$('#authorModeToolboxRemoveButton').bind('click', function() {
+		authorMode.removeTag(currentTag.id);
+		$('#authorModeToolbox').hide();
+		enableSelect();
 	});
 	
 }
 );
 
+function enableSelect() {
+	
+	$('#mainContainer').removeClass('disabled');
+	$('#mainContainer').bind('mouseup', 
+		function () { authorMode.processSelection(); } );
+}
+
+function disableSelect() {
+	$('#mainContainer').addClass('disabled');
+	$('#mainContainer').unbind('mouseup');
+}

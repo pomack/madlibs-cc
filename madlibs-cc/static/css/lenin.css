@@ -1,5 +1,5 @@
 .highlight {background-color: yellow;}
-div.authorMode {border: 1px solid; color: black; padding: 5px;}
+div.authorMode {border: 1px solid; color: black; padding: 5px; display:none;}
 input.authorMode {
 	border: 1px solid #ccc;
 	font-family: Helvetica;
@@ -12,3 +12,4 @@ input.authorMode {
 	font-family: Helvetica;
 	display: none;
 }
+div.disabled {color: #808080;}
