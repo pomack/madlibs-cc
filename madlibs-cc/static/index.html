@@ -36,16 +36,20 @@
                 <p><strong>10. Create a marketing plan. </strong>If you don't have funds to spend on marketing, there are excellent resources that cost next to nothing, save for your time input. For example, you could create a Facebook fan-page and offer incentives to your followers. You could also stay in communication with repeat and potential customers via an e-newsletter. </p> 
                 <p>Of course, these aren't the only things you'll want to think about before heading down the entrepreneurial path. (For a list of newbie mistakes you'll want to avoid, read "<a class="" href="http://online.wsj.com/article/SB10001424052748703467004575463460389523660.html">10 Mistakes That Start-Up Entrepreneurs Make</a>.") Another you may want to consider: finding a new pastime. Here's to your success. </p> 
             </div>
+            <input type="button" name="save" value="Save Story" class="standard_button" id="save_button" />
+            <input type="button" name="save" value="Delete Story" class="standard_button" id="delete_button" />
     	</article>
     	
     </div>
 	<div id="toolbar">
-		<ul id="auto-suggest">
-			<li class="ui-widget-content"><span class="draggable">suggest 1</span></li>
-			<li class="ui-widget-content"><span class="draggable">suggest 2</li>
-			<li class="ui-widget-content"><span class="draggable">suggest 3</li>
-		</ul>
-		<div id="toolbarStatusMsg" class="toolbarStatusClass"></div>
+		<div class="ui-widget">
+			<input id="suggestion" />
+		</div>
+		<div class="ui-widget" style="margin-top:2em; font-family:Arial">
+			<ul id="auto-suggest" style="height: 200px; width: 300px; " class="ui-widget-content">
+				
+			</ul>
+		</div>		
 		<div class="authorMode" id="authorModeToolbox">
 			<p align="center">TAG DETAILS</p>
 			<p id="authorModeOriginalValue">Original Value: <span id="authorModeOriginalValueValue"></span></p>
