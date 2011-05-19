@@ -6,7 +6,7 @@ $(document).ready(function(){
 	playerMode.enableEditHelper();
 	playerMode.dragDropHelper.dragMode();
 	playerMode.dragDropHelper.dropMode();
-			
+	playerMode.autoSuggestHelper.generate();
 	toolbarUI.openToolbar();
 });
 
@@ -90,6 +90,7 @@ playerMode.dragDropHelper.dropMode = function(){
 			playerMode.dragDropHelper.dropBoolean = true;
 			var targetInput = $(this).find("input");
 			targetInput.val(playerMode.dragDropHelper.draggedValue);
+			playerMode.dragDropHelper.dragMode();
 			//return $(this);
 		},
 		out: function(event,ui){
@@ -108,9 +109,46 @@ playerMode.textFieldHelper.dropMode = function(){
 			
 };
 //auto search object: populate results, enable dragging
+playerMode.autoSuggestHelper = {};
+playerMode.autoSuggestHelper.generate = function(){
+	$( "#suggestion" ).autocomplete({
+			source: function( request, response ) {
+				$.ajax({
+					url: "http://ws.geonames.org/searchJSON/",
+					type: "GET",
+					dataType: "jsonp",
+					data: {
+						featureClass: "P",
+						style: "full",
+						maxRows: 12,
+						name_startsWith: request.term
+					},
+					success: function( data ) {
+						response( $.map( data.geonames, function( item ) {
+							return {
+								label: item.name + (item.adminName1 ? ", " + item.adminName1 : "") + ", " + item.countryName,
+								value: item.name
+							}
+						}));
+					}
+				});
+			},
+			minLength: 2,
+			appendTo: "#auto-suggest",
+			search: function( event, ui ) {
+				console.log( ui.item ?
+					"Selected: " + ui.item.label :
+					"Nothing selected, input was " + this.value);
+			},
+			select: function( event,ui ) {
+				var count = 0;
+				console.log(count);
+				if (!count) {//todo:duplicate detect
+					$("#auto-suggest").prepend('<li class="ui-widget-content"><span class="draggable">' + ui.item.label + '</span></li>');
+				}
+				count = count + 1;
+				playerMode.dragDropHelper.dragMode();
+			}
 
-
-
-	
-	
-	
+		});
+}

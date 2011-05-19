@@ -43,3 +43,10 @@ span p{color:blue;}
 	margin: 10px; 
 }
 	
+/*auto suggest*/
+.ui-autocomplete-loading { background: white url('images/ui-anim_basic_16x16.gif') right center no-repeat; }
+	#suggestion { width: 25em; }
+	
+.ui-autocomplete{
+	display:block !important;
+}
