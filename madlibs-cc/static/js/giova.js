@@ -1,6 +1,18 @@
 (function() {
 
-    var getDataFromHtml, sendDataToAppEngine, getDataFromAppEngine, insertedData, sent;
+    // hide content and manuplation sections on load
+    $('#leftColumn, #rightColumn').hide();
+
+    var getDataFromHtml, 
+        sendDataToAppEngine,
+        getDataFromAppEngine,
+        insertedData,
+        sent,
+        roleDetector,
+        roles = $('header ul li a'),
+        activeRole,
+        saveButton = $('#save_button'),
+        deleteButton = $('#delete_button');
     
     /**
      *  getDataFromHtml simply gathers the DOM elements 
@@ -10,7 +22,13 @@
      */
     getDataFromHtml = function() {
 
-        var madlibContainer, madlibTitle, madlibBody, madlibObject, madlibString, saveTaggedStory, clearTaggedStory, saveButton, deleteButton; 
+        var madlibContainer,
+            madlibTitle,
+            madlibBody,
+            madlibObject, 
+            madlibString,
+            saveTaggedStory,
+            clearTaggedStory; 
 
         /**
          *  get elements we want to retrieve data from
@@ -91,6 +109,36 @@
             }
         });
     };
+
+    roleDetector = function() {
+
+        var that = $(this)
+            authorTemplate = $('#authorModeForm'),
+            tagAndPlayerTemplate = $('#leftColumn, #rightColumn');
+        
+        if (that.hasClass('active')) {
+            return;
+        } else {
+            roles.removeClass('active');
+            that.addClass('active');
+        }
+
+        activeRole = $('header ul li a.active').text();
+
+        if (activeRole === 'Author') {
+            tagAndPlayerTemplate.hide();
+            authorTemplate.show();
+            console.log('author mode');
+        } else if (activeRole === 'Tag') {
+            authorTemplate.hide();
+            tagAndPlayerTemplate.show();
+            console.log('tag mode');
+        } else if (activeRole === 'Play') {
+            authorTemplate.hide();
+            tagAndPlayerTemplate.show();
+            console.log('player mode');
+        }
+    };
     
     // function calls
     insertedData = getDataFromHtml();
@@ -98,9 +146,8 @@
     getDataFromAppEngine(function (receivedData) {
         console.log(receivedData); 
     });
-    saveButton = $('#save_button');    
     saveButton.bind('click', saveTaggedStory);
-    deleteButton = $('#delete_button');
+    roles.bind('click', roleDetector);
     deleteButton.bind('click', clearTaggedStory);
 
 })();
