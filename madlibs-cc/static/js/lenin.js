@@ -110,15 +110,13 @@ authorMode.processSelection = function ()  {
 			//console.log("added unique ID " + $(x).attr('id'));
 
 			$(x).bind('click', function () {
-				
 				authorMode.editTag(tagId);
-				
 			});
 			
 			$(x).trigger('click');
 			
 		}
-		
+		//else enableSelect();
 		
 			
 	}
@@ -143,7 +141,11 @@ authorMode.editTag = function(id) {
 	$('#mainContainer').addClass('disabled');
 	
 	// if this is a new tag, add it to the Tags object
-	if (!authorMode.Tags[id]) authorMode.Tags[id] = new authorMode.Tag(id, $('#' + id).text());	
+	if (!authorMode.Tags[id]) {
+		authorMode.Tags[id] = new authorMode.Tag(id, $('#' + id).text());
+		$('#authorModeToolboxRemoveButton').hide();
+	}
+	else $('#authorModeToolboxRemoveButton').show();
 
 	currentTag = authorMode.Tags[id];
 	
@@ -212,11 +214,15 @@ $(function () {
 function enableSelect() {
 	
 	$('#mainContainer').removeClass('disabled');
+	$('#mainContainer').unbind('mousedown');
+	
 	$('#mainContainer').bind('mouseup', 
 		function () { authorMode.processSelection(); } );
+	
 }
 
 function disableSelect() {
 	$('#mainContainer').addClass('disabled');
 	$('#mainContainer').unbind('mouseup');
+	$('#mainContainer').bind('mousedown', function () {return false;})
 }
