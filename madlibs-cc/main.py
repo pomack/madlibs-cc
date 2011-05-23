@@ -13,7 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
+# 
 
 from google.appengine.ext import db, webapp
 from google.appengine.ext.webapp import util
@@ -43,15 +43,6 @@ class StoreHandler(webapp.RequestHandler):
             output_json = True
         else:
             text = self.request.get('text')
-
-        try:
-            text = unicode(text, encoding='utf-8')
-        except:
-            try:
-                text = unicode(text, encoding='windows-1252')
-            except:
-                text = unicode(text)
-
         if not text:
             self.response.set_status(400)
             self.response.out.write('{"msg": "Must specify a body or a text field"}')

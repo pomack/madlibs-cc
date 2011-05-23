@@ -1,5 +1,6 @@
 .highlight {background-color: yellow;}
-div.authorMode {border: 1px solid; color: black; padding: 5px;}
+.authorMode {font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif; font-size:10pt;}
+div.authorMode {border: 1px solid; color: black; padding: 5px; display:none; position:fixed; top: 50px;}
 input.authorMode {
 	border: 1px solid #ccc;
 	font-family: Helvetica;
@@ -12,3 +13,6 @@ input.authorMode {
 	font-family: Helvetica;
 	display: none;
 }
+div.disabled {color: #ddd;}
+#mainContainer {font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif; font-size:10pt;}
+.authorModeButton {padding:5px 10px; background-color: #aaf; font-size:10pt;}
