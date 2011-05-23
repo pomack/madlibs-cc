@@ -16,6 +16,7 @@
 #
 from google.appengine.ext import db, webapp
 from google.appengine.ext.webapp import util
+import decimal
 try:
   import json
 except:
@@ -23,6 +24,25 @@ except:
     from simplejson import json
   except:
     from django.utils import simplejson as json
+
+
+def to_unicode(s):
+    if s is None:
+        return ''
+    try:
+        return unicode(s)
+    except:
+        pass
+    try:
+        return unicode(s, encoding='windows-1252')
+    except:
+        pass
+    try:
+        return unicode(s, encoding='iso-8859-1')
+    except:
+        pass
+    return unicode(s, encoding='latin-1')
+
 
 class Story(db.Model):
     text = db.TextProperty(required=True)
@@ -42,6 +62,97 @@ class Word(db.Model):
     @classmethod
     def make_key(cls, key_name):
         return db.Key.from_path('Word', unicode(key_name).lower())
+    
+    @classmethod
+    def from_json(cls, k=None, arr=None):
+        if arr is None and k is None:
+            return None
+        if arr is None and k is not None:
+            if type(k) is dict:
+                words = []
+                for key, value in k.iteritems():
+                    arr = [to_unicode(o) for o in value]
+                    key = to_unicode(key)
+                    words.append(Word(text=key, sort_text=key.lower(), categories=arr))
+                return words
+            k = to_unicode(k)
+            return Word(text=k, sort_text=k.lower(), categories=[])
+        k = to_unicode(k)
+        if not hasattr(arr, '__iter__'):
+            arr = [arr]
+        arr = [to_unicode(o) for o in arr]
+        return Word(text=k, sort_text=k.lower(), categories=arr)
+    
+
+
+class DictionaryEntry(db.Model):
+    language = db.StringProperty(required=True)
+    word = db.StringProperty(required=True)
+    sort_word = db.StringProperty(required=True)
+    parts_of_speech = db.StringListProperty(required=True)
+    definitions = db.ListProperty(db.Text, required=True, indexed=False)
+    tags = db.StringListProperty(required=True)
+    frequency = db.IntegerProperty(default=0)
+    
+    @classmethod
+    def key_from_language_and_word(cls, language, word):
+        return db.Key.from_path('DictionaryEntry', to_unicode(language).lower() + '|' + to_unicode(word).lower())
+    
+    @classmethod
+    def from_json(cls, obj):
+        if obj is None:
+            return None
+        if type(obj) is dict:
+            if 'language' in obj and 'word' in obj:
+                language = to_unicode(obj['language'])
+                word = to_unicode(obj['word'])
+                parts_of_speech = obj.get('parts_of_speech') or {}
+                pos = []
+                definitions = []
+                tags = obj.get('tags') or []
+                tags = [to_unicode(o).lower() for o in tags]
+                frequency = obj.get('frequency') or 0
+                word_lower = word.lower()
+                for k,v in parts_of_speech.iteritems():
+                    k = to_unicode(k).lower()
+                    if hasattr(v, '__iter__'):
+                        for adef in v:
+                            pos.append(k)
+                            definitions.append(db.Text(to_unicode(adef).strip()))
+                    else:
+                        pos.append(k)
+                        definitions.append(db.Text(to_unicode(v).strip()))
+                key = DictionaryEntry.key_from_language_and_word(language, word_lower)
+                return DictionaryEntry(
+                    key=key,
+                    language=language,
+                    word=word,
+                    sort_word=word_lower,
+                    parts_of_speech=pos,
+                    definitions=definitions,
+                    tags=tags,
+                    frequency=int(frequency or 0),
+                )
+        if hasattr(obj, '__iter__'):
+            return [cls.from_json(o) for o in obj]
+        return None
+    
+    def to_json(self):
+        pos = {}
+        for i in xrange(0, len(self.parts_of_speech)):
+            p = self.parts_of_speech[i]
+            v = to_unicode(self.definitions[i])
+            if p not in pos:
+                pos[p] = []
+            pos[p].append(v)
+        d = {
+            'language' : self.language,
+            'word' : self.word,
+            'parts_of_speech' : pos,
+            'tags' : self.tags,
+            'frequency' : self.frequency,
+        }
+        return d
     
 
 
@@ -213,6 +324,109 @@ class LoadLexiconHandler(webapp.RequestHandler):
     
 
 
+#
+class FindDictionaryEntryByTypeAndTagHandler(webapp.RequestHandler):
+    def process(self):
+        pos = self.request.GET.get('part_of_speech', '').split('|')
+        tags = self.request.GET.get('tag', '').split('|')
+        limit = self.request.GET.get('limit')
+        pos = [to_unicode(o).strip().lower() for o in pos if o.strip()]
+        tags = [to_unicode(o).strip() for o in tags if o.strip()]
+        if not pos and not tags:
+            output = []
+            executed = False
+        else:
+            q = DictionaryEntry.all().order('-frequency').order('sort_word')
+            if pos:
+                if len(pos) == 1 and pos[0]:
+                    q.filter('parts_of_speech =', pos[0])
+                elif len(pos) > 1:
+                    q.filter('parts_of_speech IN', pos)
+            if tags:
+                if len(tags) == 1 and tags[0]:
+                    q.filter('tags =', tags[0])
+                elif len(tags) > 1:
+                    q.filter('tags IN', tags)
+            if limit:
+                try:
+                    limit = min(int(limit, 10), 100)
+                    if limit <= 0:
+                        limit = 100
+                except:
+                    limit = 100
+            else:
+                limit = 100
+            rows = q.fetch(limit=limit)
+            output = [o.to_json() for o in rows if o is not None]
+            executed = True
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.headers['Access-Control-Allow-Credentials'] = 'true'
+        self.response.headers['Access-Control-Allow-Methods'] = 'GET,HEAD'
+        self.response.headers['Access-Control-Allow-Origin'] = '*'
+        self.response.headers['Access-Control-Max-Age'] = '60'
+        self.response.set_status(200)
+        self.response.out.write(json.dumps(output))
+    
+    def get(self):
+        self.process()
+    
+    def head(self):
+        self.head()
+    
+
+
+#
+class FindDictionaryEntryByWordHandler(webapp.RequestHandler):
+    def process(self):
+        words = self.request.GET.get('word', '').split('|')
+        language = self.request.GET.get('language', 'English') or 'English'
+        if not words:
+            output = []
+        else:
+            keys = [DictionaryEntry.key_from_language_and_word(language, o) for o in words if o is not None]
+            rows = DictionaryEntry.get(keys)
+            output = [o.to_json() for o in rows if o is not None]
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.headers['Access-Control-Allow-Credentials'] = 'true'
+        self.response.headers['Access-Control-Allow-Methods'] = 'GET,HEAD'
+        self.response.headers['Access-Control-Allow-Origin'] = '*'
+        self.response.headers['Access-Control-Max-Age'] = '60'
+        self.response.set_status(200)
+        self.response.out.write(json.dumps(output))
+    
+    def get(self):
+        self.process()
+    
+    def head(self):
+        self.head()
+    
+
+
+#
+class StoreDictionaryHandler(webapp.RequestHandler):
+    def process(self):
+        print self.request.body
+        arr = json.loads(self.request.body)
+        if not arr:
+            arr = []
+        if not hasattr(arr, '__iter__'):
+            arr = [arr]
+        entries = [DictionaryEntry.from_json(o) for o in arr]
+        if entries:
+            db.put(entries)
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.headers['Access-Control-Allow-Credentials'] = 'true'
+        self.response.headers['Access-Control-Allow-Methods'] = 'POST'
+        self.response.headers['Access-Control-Allow-Origin'] = '*'
+        self.response.headers['Access-Control-Max-Age'] = '60'
+        self.response.set_status(200)
+        self.response.out.write(json.dumps({'stored': len(entries)}))
+    
+    def post(self):
+        self.process()
+
+
+
 class MainHandler(webapp.RequestHandler):
     def process(self):
         self.response.set_status(200)
@@ -259,6 +473,9 @@ def main():
         (r'/store/(?P<id>\w+)/', StoreHandler),
         ('/load/', LoadLexiconHandler),
         ('/find/', FindHandler),
+        ('/dictionary/search/', FindDictionaryEntryByTypeAndTagHandler),
+        ('/dictionary/define/', FindDictionaryEntryByWordHandler),
+        ('/dictionary/store/', StoreDictionaryHandler),
     ],
                                          debug=True)
     util.run_wsgi_app(application)
