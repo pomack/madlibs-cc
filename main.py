@@ -250,13 +250,21 @@ class FindHandler(webapp.RequestHandler):
         if text or category:
             q = Word.all().order('sort_text')
             if text:
-                q.filter('sort_text >=', text.lower())
+                ltext = text.lower()
+                q.filter('sort_text >=', ltext)
             if category:
                 q.filter('categories =', category.upper())
             if next:
                 q.with_cursor(next)
-            results = [{'text': o.text, 'sort_text': o.sort_text, 'categories': o.categories} for o in q.fetch(100)]
-            cursor = q.cursor() if len(results) >= 100 else None
+            results = []
+            count = 0
+            for o in q.fetch(100):
+                count += 1
+                if text:
+                    if not o.sort_text.startswith(ltext):
+                        continue
+                results.append({'text' : o.text, 'sort_text' : o.sort_text, 'categories' : o.categories})
+            cursor = q.cursor() if count >= 100 else None
         else:
             results = []
             cursor = None
