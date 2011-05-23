@@ -208,12 +208,19 @@ $(function () {
 		enableSelect();
 	});
 	
+	document.write ('<table>');
+	for(var word in POSTAGGER_LEXICON) {
+		var tmp = ''; 
+		for (var i = 0; i < POSTAGGER_LEXICON[word].length ; i++)
+			document.write('<tr><td>' + word + '|' + POSTAGGER_LEXICON[word][i] + '</td></tr>' );
+	}
+	document.write ('</table>')
 }
 );
 
 function enableSelect() {
-	
-	$('#mainContainer').removeClass('disabled');
+	//$('#mainContainer').animate('color: #000;', 500);
+		$('#mainContainer').removeClass('disabled');
 	$('#mainContainer').unbind('mousedown');
 	
 	$('#mainContainer').bind('mouseup', 
@@ -222,6 +229,7 @@ function enableSelect() {
 }
 
 function disableSelect() {
+	//$('#mainContainer:not(span)').animate({ opacity:0.1 }, 500, function () { $('span').css({ opacity: 1 })});
 	$('#mainContainer').addClass('disabled');
 	$('#mainContainer').unbind('mouseup');
 	$('#mainContainer').bind('mousedown', function () {return false;})
