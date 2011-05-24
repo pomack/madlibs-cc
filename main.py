@@ -17,6 +17,7 @@
 from google.appengine.ext import db, webapp
 from google.appengine.ext.webapp import util
 import decimal
+import random
 try:
   import json
 except:
@@ -25,6 +26,7 @@ except:
   except:
     from django.utils import simplejson as json
 
+ALPHABET = 'abcdefghijklmnopqrstuvwxyz'
 
 def to_unicode(s):
     if s is None:
@@ -247,45 +249,45 @@ class FindHandler(webapp.RequestHandler):
         next = self.request.GET.get('next')
         text = self.request.GET.get('text')
         category = self.request.GET.get('category')
-        if text or category:
-            q = Word.all().order('sort_text')
-            if text:
-                ltext = text.lower()
-                q.filter('sort_text >=', ltext)
+        if text:
+            ltext = text.lower()
+            q = Word.all().filter('text =', text)
             if category:
                 q.filter('categories =', category.upper())
-            if next:
-                q.with_cursor(next)
-            results = []
-            use_lower_results = []
-            use_results = []
-            count = 0
-            for o in q.fetch(100):
-                count += 1
-                if text:
+            word = q.get()
+            results = [word] if word else []
+            if not results:
+                q = Word.all().filter('sort_text =', text)
+                if category:
+                    q.filter('categories =', category.upper())
+                word = q.get()
+                results = [word] if word else []
+            if not results:
+                ntext = ltext[0:-1] + chr(ord(ltext[-1]))
+                q = Word.all().order('sort_text').filter('sort_text >=', ltext)
+                if category:
+                    q.filter('categories =', category.upper())
+                if next:
+                    q.with_cursor(next)
+                for o in q.fetch(100):
                     if not o.sort_text.startswith(ltext):
-                        continue
-                    if o.text == text:
-                        use_results = [{'text' : o.text, 'sort_text' : o.sort_text, 'categories' : o.categories}]
                         break
-                    elif o.sort_text == ltext:
-                        use_lower_results = [{'text' : o.text, 'sort_text' : o.sort_text, 'categories' : o.categories}]
-                results.append({'text' : o.text, 'sort_text' : o.sort_text, 'categories' : o.categories})
-            if use_results:
-                results = use_results
-            elif use_lower_results:
-                results = use_lower_results
-            cursor = q.cursor() if count >= 100 else None
+                    results.append(o)
+        elif category:
+            terms = [random.choice(ALPHABET) + random.choice(ALPHABET) + random.choice(ALPHABET) for x in xrange(0, 10)]
+            words = [Word.all().order('sort_text').filter('categories =', category.upper()).filter('sort_text >= ', term).get() for term in terms]
+            results = [word for word in words if word]
         else:
             results = []
-            cursor = None
+        results = [{'text' : o.text, 'sort_text' : o.sort_text, 'categories' : o.categories} for o in results]
+        cursor = q.cursor() if text and len(results) > 50 else None
         self.response.headers['Content-Type'] = 'application/json'
         self.response.headers['Access-Control-Allow-Credentials'] = 'true'
         self.response.headers['Access-Control-Allow-Methods'] = 'GET,HEAD'
         self.response.headers['Access-Control-Allow-Origin'] = '*'
         self.response.headers['Access-Control-Max-Age'] = '60'
         self.response.set_status(200)
-        self.response.out.write(json.dumps({'next': cursor, 'words': results}))
+        self.response.out.write(json.dumps({'next': cursor, 'words': results, 'category' : category, 'text' : text}))
     
     def get(self):
         self.process()
