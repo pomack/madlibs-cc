@@ -257,13 +257,24 @@ class FindHandler(webapp.RequestHandler):
             if next:
                 q.with_cursor(next)
             results = []
+            use_lower_results = []
+            use_results = []
             count = 0
             for o in q.fetch(100):
                 count += 1
                 if text:
                     if not o.sort_text.startswith(ltext):
                         continue
+                    if o.text == text:
+                        use_results = [{'text' : o.text, 'sort_text' : o.sort_text, 'categories' : o.categories}]
+                        break
+                    elif o.sort_text == ltext:
+                        use_lower_results = [{'text' : o.text, 'sort_text' : o.sort_text, 'categories' : o.categories}]
                 results.append({'text' : o.text, 'sort_text' : o.sort_text, 'categories' : o.categories})
+            if use_results:
+                results = use_results
+            elif use_lower_results:
+                results = use_lower_results
             cursor = q.cursor() if count >= 100 else None
         else:
             results = []
