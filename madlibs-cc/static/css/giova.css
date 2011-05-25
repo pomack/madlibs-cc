@@ -72,23 +72,42 @@ header ul li a.active {
 }
 
 .enterTitleAndBody {
-    border:1px solid #ddd;
-    background:#eee;
+    /* border:1px solid #aaa; */
+    background:#fff;
     padding:10px;
 }
 
 .fieldContainer {
-    margin-bottom:10px;
+    margin-bottom:20px;
+    text-align:center;
+}
+
+.fieldContainer label {
+    font-size:15px;
+    display:block;
+    margin-bottom:9px;
 }
 
 .fieldContainer input {
-    border:1px solid #ddd;
+    border:1px solid #aaa;
     padding:5px;
     font-size:14px;
+    width:98.8%;
 }
 
 .fieldContainer textarea {
-    border:1px solid #ddd;
-    width:300px;
+    border:1px solid #aaa;
+    width:99.4%;
     height:200px;
+}
+
+.title {
+    font-size:17px;
+    font-weight:bold;
+    margin-bottom:20px;
+    text-decoration:underline;
+}
+
+.body {
+    
 }
