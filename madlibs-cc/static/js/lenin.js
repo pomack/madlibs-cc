@@ -87,7 +87,7 @@ authorMode.processSelection = function ()  {
 	 		
 	 		// expand the selection to include full words/phrases 
 	 			// work backwards, then forwards
-	 		console.log("Char at startpos: " + startNode.nodeValue.charAt(startPos) + " endpos: " + endNode.nodeValue.charAt(endPos));
+	 		//console.log("Char at startpos: " + startNode.nodeValue.charAt(startPos) + " endpos: " + endNode.nodeValue.charAt(endPos));
 	 		var rx = /[ ./?',<>;"$()\[\]\\]/g;
 	 		 
 	 		while (rx.test(startNode.nodeValue.charAt(startPos)) && startPos < startNode.nodeValue.length) startPos++;
@@ -98,7 +98,7 @@ authorMode.processSelection = function ()  {
 	 		
 	 		while (!(rx.test(endNode.nodeValue.charAt(endPos-1))) && endPos < endNode.nodeValue.length) endPos++;
 	 		
-	 		console.log("startpos: " + startPos + " endpos: " + endPos);
+	 		//console.log("startpos: " + startPos + " endpos: " + endPos);
 	 		
 	 		r.setStart(startNode, startPos);
 	 		r.setEnd(endNode, endPos-1);
@@ -115,6 +115,9 @@ authorMode.processSelection = function ()  {
 			
 			$(x).trigger('click');
 			
+		}
+		else {
+			console.log ('selection spans multiple nodes...')
 		}
 		//else enableSelect();
 		
@@ -142,7 +145,113 @@ authorMode.editTag = function(id) {
 	
 	// if this is a new tag, add it to the Tags object
 	if (!authorMode.Tags[id]) {
-		authorMode.Tags[id] = new authorMode.Tag(id, $('#' + id).text());
+		authorMode.Tags[id] = new authorMode.Tag(id, $('#' + id).text().trim());
+		// automatically determine the POS and properties
+		var posList = {
+			'Phrase' :'Phrase',
+			'CC' :'Coord Conjuncn',
+			'CD' :'Cardinal number',
+			'DT' :'Determiner',
+			'EX' :'Existential there',
+			'FW' :'Foreign Word',
+			'IN' :'Preposition',
+			'JJ' :'Adjective',
+			'JJR' :'Adj., comparative',
+			'JJS' :'Adj., superlative',
+			'LS' :'List item marker',
+			'MD' :'Modal',
+			'NN' :'Noun, sing. or mass',
+			'NNP' :'Proper noun, sing.',
+			'NNPS' :'Proper noun, plural',
+			'NNS' :'Noun, plural',
+			'POS' :'Possessive ending',
+			'PDT' :'Predeterminer',
+			'PP$' :'Possessive pronoun',
+			'PRP' :'Personal pronoun',
+			'RB' :'Adverb',
+			'RBR' :'Adverb, comparative',
+			'RBS' :'Adverb, superlative',
+			'RP' :'Particle',
+			'SYM' :'Symbol',
+			'TO' :'ÒtoÓ',
+			'UH' :'Interjection',
+			'VB' :'verb, base form',
+			'VBD' :'verb, past tense',
+			'VBG' :'verb, gerund',
+			'VBN' :'verb, past part',
+			'VBP' :'Verb, present',
+			'VBZ' :'Verb, present',
+			'WDT' :'Wh-determiner',
+			'WP' :'Wh pronoun',
+			'WP$' :'Possessive-Wh',
+			'WRB' :'Wh-adverb'
+		};
+		
+		$('#tagPOS option').remove().attr('disabled', true);
+		$('#tagPOS').append('<option selected value="">Loading...</option>');
+		var pos = $.ajax({
+					url: "http://madlibs-cc.appspot.com/find/?text="+authorMode.Tags[id].originalValue,
+					type: "GET",
+					dataType: "json",
+					timeout: 3000,
+					success: function( data ) {
+						//console.log(data);
+						$('#tagPOS option').remove();
+						if (data.words) {
+							if (data.words.length > 0) {
+								// process the array
+								for (var i = 0; i < data.words.length; i++) {
+									// word object - has "text" and categories[]which has POS
+									// find the right word
+									if (data.words[i].text.toLowerCase() == authorMode.Tags[id].originalValue) {
+										if (data.words[i].categories) {
+											if (data.words[i].categories.length > 0) {
+												var posListTxt = '';
+												for (var j = 0; j < data.words[i].categories.length; j++) {
+													posListTxt += data.words[i].categories[j] + "; ";
+													if (posList[data.words[i].categories[j]]) {
+														$('#tagPOS').append('<option value="' + data.words[i].categories[j] +
+															'" ' + (j == 0 ? 'selected>' : '>') + 
+															 posList[data.words[i].categories[j]] + '</option>');
+														delete posList[data.words[i].categories[j]];
+													}
+												}
+												if ($('#tagPOS option').length) {
+													$('#tagPOS').append('<option value="---">---</option>');
+												}
+												//console.log(data.words[i].text + ": " + posList);
+											}
+											else {
+												console.log("word was retrieved but has no part of speech!");
+											}
+										}	
+									}
+								}
+							}
+							else {
+								if (authorMode.Tags[id].originalValue.split(' ').length > 1) {
+									console.log ("more than one word, it's a phrase.");
+									$('#tagPOS').append('<option selected value="Phrase">Phrase</option>');
+									$('#tagPOS').append('<option value="---">---</option>');
+									delete posList['Phrase'];
+								}
+									
+								else
+									console.log ("words array is empty!");
+							}
+						}
+					},
+					error:function(jqXHR, textStatus, errorThrown){
+						// nothing;
+					},
+					complete: function () {
+						for (var i in posList) {
+							$('#tagPOS').append('<option value="' + i + '">' + posList[i] + '</option>');	
+						}
+						$('#tagPOS').removeAttr('disabled');
+					}
+				});
+
 		$('#authorModeToolboxRemoveButton').hide();
 	}
 	else $('#authorModeToolboxRemoveButton').show();
@@ -153,6 +262,8 @@ authorMode.editTag = function(id) {
 	$('#authorModeOriginalValueValue').text(currentTag.originalValue);
 	$('#tagDesc').val(currentTag.description);
 	$('#tagPOS').val(currentTag.POSSuggestion);
+	
+	
 	
 	// show the toolbox
 	$('#authorModeToolbox').show();
@@ -190,8 +301,34 @@ $(function () {
 	$('#authorModeToolbox').hide();
 	enableSelect();
 
+	$('#authorModePOSSuggestion').bind('change', function() {
+		var p = $(this).val();
+		
+		/*
+		switch (p) {
+			case 'Adjective':
+				break;
+			case 'Interjection':
+				break;
+			case 'Noun':
+				break;
+			case 'Number':
+				break;
+			case 'Ordinal Number':
+				break;
+			case 'Pronoun':
+				break;
+			case 'Proper Noun':
+				break;
+			case 'Verb':
+				break;
+			
+		}
+		*/
+		
+	});
 	
-		$('#authorModeToolboxSaveButton').bind('click', function() {
+	$('#authorModeToolboxSaveButton').bind('click', function() {
 			authorMode.saveTags();
 	});
 	
@@ -221,7 +358,7 @@ $(function () {
 
 function enableSelect() {
 	//$('#mainContainer').animate('color: #000;', 500);
-		$('#mainContainer').removeClass('disabled');
+	$('#mainContainer').removeClass('disabled');
 	$('#mainContainer').unbind('mousedown');
 	
 	$('#mainContainer').bind('mouseup', 
