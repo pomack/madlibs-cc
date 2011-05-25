@@ -45,18 +45,17 @@ span p{color:blue;}
 	margin: 10px; 
 }
 .drop-active{
-	background:#ccc;
+	background:#ccc !important;
 }
 .drop-hover{
-	background:#aeaeae;
+	background:#aeaeae !important;
 }
 	
 /*auto suggest*/
 .ui-autocomplete-loading { background: white url('images/ui-anim_basic_16x16.gif') right center no-repeat; }
-	#suggestion { width: 25em; }
+	#suggestion { width: 300px; }
 	
 .ui-autocomplete{
 	display:block !important;
 	list-style:none !important;
-	left:-40px !important;
 }
