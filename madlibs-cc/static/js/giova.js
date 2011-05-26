@@ -4,7 +4,7 @@
 $('#leftColumn, #rightColumn').hide();
 
 // declare variables up top to avoid hoisting
-var getDataFromHtml, sendDataToAppEngine, getDataFromAppEngine, insertedData, sent, roleDetector, roles = $('header ul li a'), activeRole, saveButton = $('#save_button'), deleteButton = $('#delete_button'), submitButton = $('#submitter');
+var getDataFromHtml, saveAuthoredStory, saveTaggedStory, savePlayedStory, sendDataToAppEngine, getDataFromAppEngine, roleDetector, roles = $('header ul li a'), activeRole, saveButton = $('#save_button'), deleteButton = $('#delete_button'), submitButton = $('#submitter');
 
 // getDataFromHtml simply gathers the DOM elements we want to get data from, 
 // inserts their values into an object and returns a string version of that object
@@ -29,7 +29,7 @@ getDataFromHtml = function() {
     return madlibString;
 };
 
-getFormData = function() {
+saveAuthorStory = function() {
     var title = $('.fieldContainer input[type=text]').val(),
         body = $('.fieldContainer textarea').val(),
         originalStory,
@@ -44,7 +44,10 @@ getFormData = function() {
        
     // writing to Tag Mode
     populateStory(title, body);
-    sendDataToAppEngine(originalStoryJSONString);
+    sendDataToAppEngine(originalStoryJSONString, function(objId) {
+        id = objId;
+        console.log(id);
+    });
 };
 
 populateStory = function(title, body) {
@@ -60,7 +63,10 @@ populateStory = function(title, body) {
 saveTaggedStory = function() {
    var taggedStory;
    taggedStory = getDataFromHtml();
-   sendDataToAppEngine(taggedStory);
+   sendDataToAppEngine(taggedStory, function(objId) {
+       id = objId;
+       console.log(id);
+   });
 };
 
 // clear tagged story  
@@ -74,8 +80,7 @@ clearTaggedStory = function() {
 
 // sendDataToAppEngine sends the returned string from getDataFromHtml 
 // to our appEngine /store/ using jQuery's ajax method
-sendDataToAppEngine = function(data) {
-    
+sendDataToAppEngine = function(data, f) {
     $.ajax({
         url: 'http://localhost:8080/store/',
         contentType: 'application/json',
@@ -83,25 +88,27 @@ sendDataToAppEngine = function(data) {
         type: 'POST',
         data: data,
         crossDomain: 'true',
-        success: function() {
-            console.log('succeded');
-        },
-        complete: function() {
-            console.log('completed');
+        dataType: 'json',
+        success: function(obj) {
+            if (f) {
+                f(obj.id);
+            } else {
+                console.log('Stored ID ' + obj.id);
+            }
         }
     });
 };
 
 // getDataFromAppEngine
-getDataFromAppEngine = function(f) {
-
+getDataFromAppEngine = function(taggedId) {
+    console.log('Called getDataFromAppEngine ' + taggedId);
     $.ajax({
-        url: 'http://localhost:8080/list/',
+        url: 'http://localhost:8080/view/' + taggedId + '/',
         contentType: 'application/json',
         type: 'GET',
         dataType: 'json',
         success: function(data) {
-            f(data);
+            console.log(data);
         }
     });
 };
@@ -110,7 +117,10 @@ roleDetector = function() {
 
     var that = $(this)
         authorTemplate = $('#authorModeForm'),
-        tagAndPlayerTemplate = $('#leftColumn, #rightColumn');
+        tagAndPlayerTemplate = $('#leftColumn, #rightColumn'),
+        toolbar = $('#toolbar'),
+        autoFillButton = $('#autofill'),
+        submitButton = $('#submit');
     
     if (that.hasClass('active')) {
         return;
@@ -124,27 +134,26 @@ roleDetector = function() {
     if (activeRole === 'Author') {
         tagAndPlayerTemplate.hide();
         authorTemplate.show();
-        console.log('author mode');
     } else if (activeRole === 'Tag') {
         authorTemplate.hide();
+        autoFillButton.hide();
+        submitButton.hide();
+        toolbar.hide();
         tagAndPlayerTemplate.show();
-        console.log('tag mode');
     } else if (activeRole === 'Play') {
         authorTemplate.hide();
+        autoFillButton.show();
+        submitButton.show();
+        toolbar.show();
         tagAndPlayerTemplate.show();
-        console.log('player mode');
+        getDataFromAppEngine(id);
     }
 };
 
 // function calls
-insertedData = getDataFromHtml();
-sent = sendDataToAppEngine(insertedData);
-getDataFromAppEngine(function (receivedData) {
-    console.log(receivedData); 
-});
 saveButton.bind('click', saveTaggedStory);
 roles.bind('click', roleDetector);
-submitButton.click(getFormData);
+submitButton.bind('click', saveAuthorStory);
 deleteButton.bind('click', clearTaggedStory);
 
 })();
