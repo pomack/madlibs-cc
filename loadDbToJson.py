@@ -138,11 +138,11 @@ def retrieve_from_db():
   print 'done'
   return 0
 
-def load_to_appengine(url=None, start_at_offset=None):
+def load_dictionary_to_appengine(url=None, start_at_offset=None):
   upload = []
   url = url or 'http://madlibs-cc.appspot.com/dictionary/store/'
   counter = 0
-  print 'loading wiktionary2.json into memory...this could take a while...'
+  print 'loading wiktionary2.json'
   with open('wiktionary2.json') as fd:
     for line in fd:
       if not line.startswith('{'):
@@ -166,10 +166,38 @@ def load_to_appengine(url=None, start_at_offset=None):
   return 0
 
 
+def load_lexicon_to_appengine(url=None, start_at_offset=None):
+  upload = []
+  url = url or 'http://madlibs-cc.appspot.com/lexicon/store/'
+  counter = 0
+  print 'loading lexicon2.json'
+  with open('lexicon2.json') as fd:
+    for line in fd:
+      if not line.startswith('{'):
+        continue
+      if start_at_offset and counter < start_at_offset:
+        counter += 1
+        continue
+      de = json.loads(line.strip()[0:line.rindex('}')+1])
+      upload.append(de)
+      if len(upload) >= 1000:
+        print 'uploading %d to %d, last word: "%s"' % (counter, (len(upload) + counter), de.get('word'))
+        urllib2.urlopen(url, json.dumps(upload))
+        counter += len(upload)
+        print 'done uploading %d through "%s"' % (counter, de.get('word'))
+        upload = []
+  if upload:
+    print 'uploading %d to %d through "%s"' % (counter, (len(upload) + counter), upload[-1].get('word'))
+    urllib2.urlopen(url, json.dumps(upload))
+    counter += len(upload)
+    print 'done uploading %d through "%s"' % (counter,upload[-1].get('word'))
+  return 0
+
 def get_parser():
   parser = optparse.OptionParser()
   parser.add_option('-r', '--retrieve', dest='retrieve_from_mysql', action='store_true', help='Retrieve from MySQL and dump to JSON file')
-  parser.add_option('-l', '--load', dest='load_dictionary', action='store_true', help='Load Dictionary to AppEngine')
+  parser.add_option('-l', '--load_dictionary', dest='load_dictionary', action='store_true', help='Load Dictionary to AppEngine')
+  parser.add_option('-L', '--load_lexicon', dest='load_lexicon', action='store_true', help='Load Lexicon to AppEngine')
   parser.add_option('-o', '--offset', dest='offset', type='int', help='Start at offset')
   parser.add_option('-u', '--url', dest='url', help='URL to upload to')
   return parser
@@ -184,7 +212,9 @@ def main(argv):
   if args.retrieve_from_mysql:
     return retrieve_from_db()
   if args.load_dictionary:
-    return load_to_appengine(args.url or None, args.offset or None)
+    return load_dictionary_to_appengine(args.url or None, args.offset or None)
+  if args.load_lexicon:
+    return load_lexicon_to_appengine(args.url or None, args.offset or None)
   parser.parse_error('Must specify either -r or -l')
   return 1
 

@@ -63,7 +63,7 @@ class Word(db.Model):
     
     @classmethod
     def make_key(cls, key_name):
-        return db.Key.from_path('Word', unicode(key_name).lower())
+        return db.Key.from_path('Word', key_name)
     
     @classmethod
     def from_json(cls, k=None, arr=None):
@@ -75,15 +75,19 @@ class Word(db.Model):
                 for key, value in k.iteritems():
                     arr = [to_unicode(o) for o in value]
                     key = to_unicode(key)
-                    words.append(Word(text=key, sort_text=key.lower(), categories=arr))
+                    words.append(Word(key=cls.make_key(key), text=key, sort_text=key.lower(), categories=arr))
                 return words
             k = to_unicode(k)
-            return Word(text=k, sort_text=k.lower(), categories=[])
+            if k:
+                return Word(key=cls.make_key(k), text=k, sort_text=k.lower(), categories=[])
+            return None
         k = to_unicode(k)
         if not hasattr(arr, '__iter__'):
             arr = [arr]
         arr = [to_unicode(o) for o in arr]
-        return Word(text=k, sort_text=k.lower(), categories=arr)
+        if not k or not arr:
+            return None
+        return Word(key=cls.make_key(k), text=k, sort_text=k.lower(), categories=arr)
     
 
 
@@ -296,6 +300,29 @@ class FindHandler(webapp.RequestHandler):
         self.process()
     
 
+class StoreLexiconHandler(webapp.RequestHandler):
+    def process(self):
+        an_arr = json.loads(self.request.body)
+        arr = []
+        for d in an_arr:
+            k = d.get('word')
+            v = d.get('part_of_speech')
+            if not k:
+                continue
+            arr.append(Word(key=Word.make_key(k), text=k, sort_text=k.lower(), categories=v))
+        db.put(arr)
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.headers['Access-Control-Allow-Credentials'] = 'true'
+        self.response.headers['Access-Control-Allow-Methods'] = 'GET,HEAD'
+        self.response.headers['Access-Control-Allow-Origin'] = '*'
+        self.response.headers['Access-Control-Max-Age'] = '60'
+        self.response.set_status(200)
+        self.response.out.write(json.dumps({'next': k, 'stored': len(arr)}))
+    
+    def post(self):
+        self.process()
+    
+
 
 
 class LoadLexiconHandler(webapp.RequestHandler):
@@ -321,7 +348,7 @@ class LoadLexiconHandler(webapp.RequestHandler):
                 continue
             if break_on_next:
                 break
-            arr.append(Word(text=k, sort_text=k.lower(), categories=v))
+            arr.append(Word(key=Word.make_key(k), text=k, sort_text=k.lower(), categories=v))
             if limit and len(arr) > limit:
                 db.put(arr)
                 break_on_next = True
@@ -493,6 +520,7 @@ def main():
         ('/store/', StoreHandler),
         (r'/store/(?P<id>\w+)/', StoreHandler),
         ('/load/', LoadLexiconHandler),
+        ('/lexicon/store/', StoreLexiconHandler),
         ('/find/', FindHandler),
         ('/dictionary/search/', FindDictionaryEntryByTypeAndTagHandler),
         ('/dictionary/define/', FindDictionaryEntryByWordHandler),
