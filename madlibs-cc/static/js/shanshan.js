@@ -22,25 +22,14 @@ toolbarUI.closeToolbar = function(){
 
 //global: player mode object
 var playerMode = playerMode || {};
-//saveArray: save all the drag and drop input value when dropped. leave the input fields empty until the form is submitted. before submit, in validation method, get the input fields and validte them, then insert into the array.
+playerMode.switch = false;
 playerMode.saveArray = [];
 //point to the tag object generated from author mode, rightnow, use a static object
 playerMode.getAuthorTags = [
 		{Tag:{id:"tag-1",originalValue:"your 'joy' factor",POSSuggestion:"NN",description:"desc 1"}},
-		{Tag:{id:"tag-2",originalValue:"your price",POSSuggestion:"NN",description:"desc 2"}},
-		{Tag:{id:"tag-3",originalValue:"the math",POSSuggestion:"Verb",description:"desc 3"}}
+		{Tag:{id:"tag-2",originalValue:"your price",POSSuggestion:"VB",description:"desc 2"}},
+		{Tag:{id:"tag-3",originalValue:"the math",POSSuggestion:"Phrase",description:"desc 3"}}
 ]; 
-
-//Text Field object : input mode and dropable mode
-//playerMode.textFieldHelper = {};
-//playerMode.textFieldHelper.typeMode = function(){ //onblur event
-//	playerMode.saveInputArray = playerMode.saveInputArray.push($(this).val());
-//};
-//playerMode.textFieldHelper.dropMode = function(){ //drop event
-//	playerMode.saveDropArray = playerMode.saveDropArray.push($(this).val());
-//};
-
-//Todo: add event: click to enable input, mouseup to validate and disable input
 
 
 //form object
@@ -50,21 +39,13 @@ playerMode.form = {
 
 playerMode.form.enableEdit = function(){
 	for(var i=0; i<playerMode.form.elementSpan.length; i++){
-		playerMode.form.elementSpan[i].innerHTML = "<input type='text' class='ui-widget-header' value=''/><p></p>";
+		playerMode.form.elementSpan[i].innerHTML = "<input type='text' class='ui-widget-header' value=''/>";
 		playerMode.saveArray[i] = "";
 	}
 }
 
 playerMode.form.autofill = function(){
-		//get the partofspeech array
-		var partofspeech = [];
-		for(var i =0; i < playerMode.getAuthorTags.length; i++){
-			partofspeech[i] = playerMode.getAuthorTags[i].POSSuggestion
-		}
-		//random function, get random id from a certain length
 		
-		//generate random word for each input filed, based on the part of speech
-		//insert the generated input array values to the form		
 }
 	
 playerMode.form.validate = function(data){ //data: playerMode.saveArray 
@@ -107,7 +88,6 @@ playerMode.dragDropHelper.dragMode = function(){
 		stop: function(event,ui){
 			var AllInput = $("span.ui-widget-header").find("input");
 			$(this).remove();
-			//detect where the draggable item is, find the nearest input field
 			playerMode.dragDropHelper.dropMode();
 			if (playerMode.dragDropHelper.dropBoolean) {
 				console.log("inside Droppable");
@@ -117,11 +97,17 @@ playerMode.dragDropHelper.dragMode = function(){
 			}
 		}
 		}).disableSelection();
-	
 }
 
-playerMode.dragDropHelper.dropMode = function(){ //$("span.ui-widget-header")
-	$("input.ui-widget-header").droppable({
+playerMode.dragDropHelper.dropMode = function(){ 
+	var dropObject;
+	if(!$("#currentIndex").html()){
+		dropObject = $("input.ui-widget-header");
+	}else{
+		dropObject = $("span.highlight:eq("+$("#currentIndex").html()+")");
+	}
+	console.log($("#currentIndex").html());
+	dropObject.droppable({
 		accept: ".draggable",
 		hoverClass: "drop-hover",
 		activeClass: "drop-active",
@@ -145,23 +131,62 @@ playerMode.dragDropHelper.dropMode = function(){ //$("span.ui-widget-header")
 
 //auto search object: populate results, enable dragging
 playerMode.autoSuggestHelper = {}
+
+playerMode.autoSuggestHelper.init = function(){
+	$( "#suggestion" ).val("Please Select a Category").attr("disabled",true).css("background","#ccc");
+	playerMode.autoSuggestHelper.generateCat();
+	playerMode.autoSuggestHelper.generateList();
 	
-playerMode.autoSuggestHelper.autoSuggest = function(){
+	$("input.ui-widget-header").bind("focus",function(){
+		var currentIndex = $("span.highlight").index($(this).parent());
+		//if(currentIndex == -1){ currentIndex = 0;}
+			$("#currentIndex").html(currentIndex);
+			$(this).val("").css("background","#fff");
+			$(".ui-autocomplete").children().remove();
+			playerMode.autoSuggestHelper.updateCategory(currentIndex+1);
+			
+	});
+	$("input.ui-widget-header").bind("keyup",function(){
+		var currentIndex = $("span.highlight").index($(this).parent());
+		playerMode.form.updateArray(currentIndex,$(this).val());
+		console.log(playerMode.saveArray);
+		//todo: add the auto suggestion based on the typed in content + the current tag desc, tag category
+	});
 	
 }
 
-playerMode.autoSuggestHelper.updateInput = function(){
-	//return the ajax url
-}
-
-playerMode.autoSuggestHelper.generate = function(){ 
-	$( "#suggestion" ).attr("disabled",true).css("background","#ddd");
-	//generate the partofspeech dropdown
+playerMode.autoSuggestHelper.generateCat = function(){
+	$("#partofspeech").append("<option value=''/>");
 	for(var i =0; i < playerMode.getAuthorTags.length; i++){
 		$("#partofspeech").append("<option value='"+playerMode.getAuthorTags[i].Tag.POSSuggestion+"'>"+playerMode.getAuthorTags[i].Tag.POSSuggestion+"</option>"); 
 	}
-	$("#partofspeech").change(function(){
-		 $( "#suggestion" ).removeAttr("disabled").css("background","#fff");
+	
+	//TODO: RETURN PARTOFSPEECH ARRAY
+}
+
+playerMode.autoSuggestHelper.updateCategory = function(index){
+	$("option","select#partofspeech").removeAttr('selected').eq(index).attr("selected",true);
+		
+	if($("option:selected","#partofspeech").val() === "Phrase"){
+		$("#suggestion").val("Please type in by yourself for Phrase").attr('disabled','true').css("background","#ccc");
+		
+	}else if( $("option:selected","#partofspeech").val() === "" ){
+		$("#suggestion").val("Please Selcted a Category").attr('disabled','true').css("background","#ccc");
+		
+	}else{
+		$( "#suggestion" ).val("").removeAttr("disabled").css("background","#fff");	
+			
+	}
+}
+
+playerMode.autoSuggestHelper.generateList = function(){ 
+	
+	$("#partofspeech").bind("change",function(){
+		//var currentIndex = $(this);
+		$("#currentIndex").html("");
+		var index = $("option").index($(this).children(":selected"));
+		console.log(index);
+		playerMode.autoSuggestHelper.updateCategory(index);
 	});
 	
 	$( "#suggestion" ).autocomplete({
@@ -200,54 +225,57 @@ playerMode.autoSuggestHelper.generate = function(){
 
 function consoleLog(){
 	console.log(playerMode.saveArray);
-	//console.log(playerMode.getAuthorTags);
 }
 
-
-$(document).ready(function() {
-    var element = $('#mainContainer'),
+playerMode.init = function(){
+	var element = $('#mainContainer'),
     	  dragEl = $("span","#auto-suggest"),
 	 	  dropEl = $("input.ui-widget-header"),
 	 	  autoFill = $("#autofill"),
-	 	  form = $("#playerForm"),
 	 	  submitBtn = $("#submit");
 	 	  
-	playerMode.autoSuggestHelper.updateInput();
-  	//Consider so far we have all the spans tagged, and tag informaiton populated.(Lenin)
+	//Consider so far we have all the spans tagged, and tag informaiton populated.(Lenin)
   	//lenin provide a disableAuthorMode function,rightnow, disable his js file.
   	
   	//generate the playermode forms, and attach toolbar UI to onblur event
 	playerMode.form.enableEdit();
 	playerMode.dragDropHelper.dropMode(); //init the droppable input
 	//onblur open the toolbar, as user type, generate the auto-suggestion result
-	$("input.ui-widget-header").blur(function(){
-			//enable typemode
-			//playerMode.textFieldHelper.typeMode();
-			//open the toolbar UI, enable the auto-suggestion form
-		});
-	$("input.ui-widget-header").keyup(function(){
-		var index = $("span","#playerForm").index($(this).parent());
-		playerMode.form.updateArray(index,$(this).val());
-		console.log(playerMode.saveArray);
-		//todo: add the auto suggestion based on the typed in content + the current tag desc, tag category
-	});
+	
 	
 	//Toolbar auto-suggest
 	
-	playerMode.autoSuggestHelper.generate();
+	playerMode.autoSuggestHelper.init();
 	
 	//click on the auto-suggested result, enable drag and drop
 	dragEl.mousedown( playerMode.dragDropHelper.dragMode );
 	//drag and drop to the desired field
 	//auto-fill the whole form for user, random pick the words matching the partofspeech
-	autoFill.click( playerMode.form.autofill );
+	autoFill.click(function(){
+		$.map(playerMode.getAuthorTags,function(n,i){
+			var randomNum = Math.ceil(Math.random()*9);
+			$.getJSON("http://madlibs-cc.appspot.com/find/?category="+n.Tag.POSSuggestion, function(data) { console.log(randomNum);
+				console.log(i);
+				if(data.words.length > 1){
+					$("span.highlight:eq("+i+")").find("input").val(data.words[1].text);
+				}else{
+					$("span.highlight:eq("+i+")").find("input").val("Please type in here").css("background","red");	
+				}
+			});	
+		});	
+	});
 	//validate the fields(make sure is valid word) and submit form,close the toolbar.
-	form.submit(function(){
+	$("#player_submit").click(function(){
 		playerMode.form.validate();
 		$("#user-data").html(playerMode.saveArray);
 		$.ajax(function(){
 						
 			});
 		});
-		consoleLog();
+		consoleLog();	
+}
+
+
+$(document).ready(function() {
+   playerMode.init();
 });

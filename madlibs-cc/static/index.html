@@ -38,7 +38,7 @@
         </div><!-- #authorModeForm -->
         <div id="leftColumn">
             <button id="autofill">Auto Fill All</button>
-            <form id="playerForm">
+
             <article>
                 <h1 class="title"></h1>
                 
@@ -49,35 +49,24 @@
             <p class="error"></p>
             <input type="button" name="save" value="Save Story" class="standard_button" id="save_button" />
             <input type="button" name="save" value="Delete Story" class="standard_button" id="delete_button" />
-            </form>
+
         </div><!-- #leftCloummn -->
 
         <div id="rightColumn">
             <div id="toolbar">
                 <select id="partofspeech"></select>
-                <div class="ui-widget">
-                    <input id="suggestion" class="ui-autocomplete-input" />
-                </div>
-                <ul class="ui-autocomplete ui-menu ui-widget ui-widget-content ui-corner-all">
-                </ul>
-                <div id="auto-suggest" class="ui-widget" style="margin-top:2em; font-family:Arial">
-                    
-                </div>      
+					<div class="ui-widget">
+						<input id="suggestion" class="ui-autocomplete-input" />
+						<p id="currentIndex"></p>
+					</div>
+					<ul class="ui-autocomplete ui-menu ui-widget ui-widget-content ui-corner-all"></ul>
+					<div id="auto-suggest" class="ui-widget" style="margin-top:2em; font-family:Arial"></div>      
                 <div class="authorMode" id="authorModeToolbox">
                     <p align="center">TAG DETAILS</p>
                     <p id="authorModeOriginalValue">Original Value: <span id="authorModeOriginalValueValue"></span></p>
                     <p id="authorModeDescription"><label for="tagDesc">Description:</label> <input class="authorMode" id="tagDesc" type="text" width="40" /></p>
                     <p id="authorModePOSSuggestion"><label for="tagPOS">Part of Speech Suggestion:</label> 
-                    	<select class="authorMode" name="tagBasePOS">
-                    		<option value="Adjective">Adjective</option>
-                    		<option value="Adverb">Adverb</option>
-                    		<option value="Interjection">Interjection</option>
-                    		<option value="Noun">Noun</option>
-                    		<option value="Number">Number</option>
-                    		<option value="Ordinal Number">Ordinal Number</option>
-                    		<option value="Pronoun">Pronoun</option>
-                    		<option value="Proper Noun">Proper Noun</option>
-                    		<option value="Verb">Verb</option>
+                    	<select class="authorMode" id="tagPOS" name="tagBasePOS">
                     	</select>
                     	
                     	</p>
@@ -94,6 +83,6 @@
     <script src="js/shanshan.js" type="text/javascript"></script>
     <script src="js/lenin.js" type="text/javascript"></script>
     <script src="js/giova.js" type="text/javascript"></script>
-    <!--<script src="lexicon.js" type="text/javascript"></script>-->
+
 </body>
 </html>
