@@ -130,7 +130,7 @@ getDataFromAppEngine = function(taggedId) {
 
 roleDetector = function() {
 
-    var that = $(this)
+    var that = $(this),
         authorTemplate = $('#authorModeForm'),
         tagAndPlayerTemplate = $('#leftColumn, #rightColumn'),
         toolbar = $('#toolbar'),
