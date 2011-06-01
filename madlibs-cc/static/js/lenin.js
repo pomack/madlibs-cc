@@ -291,7 +291,7 @@ authorMode.editTag = function(id) {
 	
 	
 	// show the toolbox
-	$('#authorModeToolbox').show();
+	$('#authorModeToolbox').fadeIn(350);
 	
 
 }
@@ -307,7 +307,7 @@ authorMode.saveTags = function() {
 		
 		if (authorMode.Tags[currentTag.id] === currentTag) Status('saved!'); else Status('Save failed!');
 		//clear values
-		$('#authorModeToolbox').hide();
+		$('#authorModeToolbox').fadeOut(350);
 		$('#tagDesc,#tagPOS').val('');
 		enableSelect();	
 }
@@ -329,19 +329,19 @@ authorMode.init = function() {
 	
 	$('#authorModeToolboxSaveButton').bind('click', function() {
 			authorMode.saveTags();
-			$('#authorModeToolbox').hide();
+			$('#authorModeToolbox').fadeOut(350);
 		enableSelect();
 	});
 	
 	$('#authorModeToolboxCancelButton').bind('click', function() {
 		if (!currentTag.hasBeenSet) authorMode.removeTag(currentTag.id);
-		$('#authorModeToolbox').hide();
+		$('#authorModeToolbox').fadeOut(350);
 		enableSelect();
 	});
 	
 	$('#authorModeToolboxRemoveButton').bind('click', function() {
 		authorMode.removeTag(currentTag.id);
-		$('#authorModeToolbox').hide();
+		$('#authorModeToolbox').fadeOut(350);
 		enableSelect();
 	});
 
