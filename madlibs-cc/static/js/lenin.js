@@ -15,6 +15,7 @@ authorMode.Tag = function Tag (id, originalValue) {
 	this.description = '';
 	this.POSSuggestion = '';
 	this.hasBeenSet = false;
+	this.parentNode = {};
 }
 
 authorMode.Tag.prototype.set = function () { this.hasBeenSet = true; }
@@ -55,84 +56,98 @@ authorMode.getUniqueID = function(prefix) {
 	return prefix + i;
 }
 
+function getM() {
+	return new Date().getMilliseconds();
+}
+
+authorMode.doNotProcessSelection = function () {}
+
 authorMode.processSelection = function ()  {
+	this.selectionHandler = this.doNotProcessSelection;
 	
-	var sr = window.getSelection();
+	try {
 	
-	if (sr.toString().trim() != '')  {
-		
-		var r = sr.getRangeAt(0);	 
-		
-		var startNode, endNode, startPos, endPos;
-		 
-		 
-		 // should we be cloning the node?  loses the parent stuff
-		 
-		 // just focus on adding the span first...can verify that it's a whole word later
-		 
-		 // check if the same node
-		 if (sr.anchorNode == sr.focusNode) {
-		 	
-		 	startNode = sr.anchorNode; //.cloneNode();
-		 	endNode = startNode; //.cloneNode();
-		 	
-		 	if (sr.anchorOffset < sr.focusOffset) {
-	 			startPos = sr.anchorOffset;
-	 			endPos = sr.focusOffset;
-	 		}
-		 	else {
-		 		startPos = sr.focusOffset;
-		 		endPos = sr.anchorOffset;	
-	 		} 
-	 		
-	 		// expand the selection to include full words/phrases 
-	 			// work backwards, then forwards
-	 		//console.log("Char at startpos: " + startNode.nodeValue.charAt(startPos) + " endpos: " + endNode.nodeValue.charAt(endPos));
-	 		var rx = /[ ./?',<>;"$()\[\]\\]/g;
-	 		 
-	 		while (rx.test(startNode.nodeValue.charAt(startPos)) && startPos < startNode.nodeValue.length) startPos++;
-	 		
-	 		while (!(rx.test(startNode.nodeValue.charAt(startPos-1))) && startPos > 0) startPos--;
-
-	 		while (rx.test(endNode.nodeValue.charAt(endPos)) && endPos > 0) endPos--;
-	 		
-	 		while (!(rx.test(endNode.nodeValue.charAt(endPos-1))) && endPos < endNode.nodeValue.length) endPos++;
-	 		
-	 		//console.log("startpos: " + startPos + " endpos: " + endPos);
-	 		
-	 		r.setStart(startNode, startPos);
-	 		r.setEnd(endNode, endPos-1);
-			var x = this.ce('span');
-			this.toggleHighlight(x);
-			var tagId = this.getUniqueID('tag-');
-			$(x).attr('id', tagId);
-			r.surroundContents(x);
-			//console.log("added unique ID " + $(x).attr('id'));
-
-			$(x).bind('click', function () {
-				authorMode.editTag(tagId);
-			});
-			
-			$(x).trigger('click');
-			
+		var sr = $.extend({}, window.getSelection()),
+			sr2 = window.getSelection(),
+	        r = sr2.getRangeAt(0).cloneRange(),
+	        curSelText = sr2.toString().trim(),
+			self = this;
+	
+		if (curSelText != '')  {
+			//console.log('sr toString is:' + sr.toString().trim());
+			var startNode, endNode, startPos, endPos;
+			 console.log ('doin it');
+			 
+			 // should we be cloning the node?  loses the parent stuff
+			 // just focus on adding the span first...can verify that it's a whole word later
+			 // check if the same node
+			 if (sr.anchorNode == sr.focusNode) {
+			 	
+			 	startNode = sr.anchorNode; //.cloneNode();
+			 	endNode = startNode; //.cloneNode();
+			 	
+			 	if (sr.anchorOffset < sr.focusOffset) {
+		 			startPos = sr.anchorOffset;
+		 			endPos = sr.focusOffset;
+		 		}
+			 	else {
+			 		startPos = sr.focusOffset;
+			 		endPos = sr.anchorOffset;	
+		 		} 
+		 		
+		 		// expand the selection to include full words/phrases 
+		 		// work backwards, then forwards
+	
+		 		var rx = /[ ./?',<>;"$()\[\]\\]/g;
+		 		 
+		 		while (rx.test(startNode.nodeValue.charAt(startPos)) && startPos < startNode.nodeValue.length) startPos++;
+		 		
+		 		while (!(rx.test(startNode.nodeValue.charAt(startPos-1))) && startPos > 0) startPos--;
+	
+		 		while (rx.test(endNode.nodeValue.charAt(endPos)) && endPos > 0) endPos--;
+		 		
+		 		while (!(rx.test(endNode.nodeValue.charAt(endPos-1))) && endPos <= endNode.nodeValue.length) endPos++;
+		 		
+		 		
+		 		r.setStart(startNode, startPos);
+		 		r.setEnd(endNode, endPos-1);
+				var x = self.ce('span');
+				self.toggleHighlight(x);
+				var tagId = self.getUniqueID('tag-');
+				$(x).attr('id', tagId);
+				r.surroundContents(x);
+	
+				$(x).bind('click', function () {
+					authorMode.editTag(tagId);
+				});
+				
+				$(x).trigger('click');
+				
+			}
+			else {
+				console.log ('selection spans multiple nodes...')
+			}
+	
 		}
-		else {
-			console.log ('selection spans multiple nodes...')
-		}
-		//else enableSelect();
-		
-			
 	}
-	//normalize();
-}	
+	catch (e) {
+		console.log('*** an error occurred: ' + e)
+	}
+	finally {
+		this.selectionHandler = this.processSelection;
+	}
+};
+
+
+authorMode.selectionHandler = authorMode.processSelection;
 
 authorMode.removeTag = function(id) {
 
 	if (authorMode.Tags[id]) {
 		$('#' + id).contents().unwrap().unbind('click');
-		
+		document.normalize();
 		delete authorMode.Tags[id];
-		if (!authorMode.Tags[id]) Status("Tag removed!"); else Status("Tag removal failed...");
+		if (!authorMode.Tags[id]) Status("Tag successfully removed!"); else Status("Tag removal failed...");
 	}
 	
 }
@@ -143,11 +158,7 @@ authorMode.editTag = function(id) {
 	disableSelect();
 	$('#mainContainer').addClass('disabled');
 	
-	// if this is a new tag, add it to the Tags object
-	if (!authorMode.Tags[id]) {
-		authorMode.Tags[id] = new authorMode.Tag(id, $('#' + id).text().trim());
-		// automatically determine the POS and properties
-		var posList = {
+	var posList = {
 			'Phrase' :'Phrase',
 			'CC' :'Coord Conjuncn',
 			'CD' :'Cardinal number',
@@ -186,11 +197,15 @@ authorMode.editTag = function(id) {
 			'WP$' :'Possessive-Wh',
 			'WRB' :'Wh-adverb'
 		};
+	// if this is a new tag, add it to the Tags object
+	if (!authorMode.Tags[id]) {
+		authorMode.Tags[id] = new authorMode.Tag(id, $('#' + id).text().trim());
+		// automatically determine the POS and properties
 		
 		$('#tagPOS option').remove().attr('disabled', true);
 		$('#tagPOS').append('<option selected value="">Loading...</option>');
 		var pos = $.ajax({
-					url: "http://madlibs-cc.appspot.com/find/?text="+authorMode.Tags[id].originalValue,
+					url: "/find/?text="+authorMode.Tags[id].originalValue,
 					type: "GET",
 					dataType: "json",
 					timeout: 3000,
@@ -222,7 +237,7 @@ authorMode.editTag = function(id) {
 												//console.log(data.words[i].text + ": " + posList);
 											}
 											else {
-												console.log("word was retrieved but has no part of speech!");
+												console.log("word was found but has no part of speech!");
 											}
 										}	
 									}
@@ -237,7 +252,7 @@ authorMode.editTag = function(id) {
 								}
 									
 								else
-									console.log ("words array is empty!");
+									console.log ("words not found in db!");
 							}
 						}
 					},
@@ -254,14 +269,21 @@ authorMode.editTag = function(id) {
 
 		$('#authorModeToolboxRemoveButton').hide();
 	}
-	else $('#authorModeToolboxRemoveButton').show();
-
+	else {
+		// add all the parts of speech
+		for (var i in posList) {
+			$('#tagPOS').append('<option value="' + i + (authorMode.Tags[id].POSSuggestion == i) ? ' selected' : '' + '">' + posList[i] + '</option>');	
+		}
+		$('#tagPOS').removeAttr('disabled');
+		$('#authorModeToolboxRemoveButton').show();
+	}
+	
 	currentTag = authorMode.Tags[id];
 	
 	// populate the spans in the toolbox
 	$('#authorModeOriginalValueValue').text(currentTag.originalValue);
 	$('#tagDesc').val(currentTag.description);
-	$('#tagPOS').val(currentTag.POSSuggestion);
+	//$('#tagPOS').val(currentTag.POSSuggestion);
 	
 	
 	
@@ -275,7 +297,8 @@ authorMode.saveTags = function() {
 		
 		currentTag.setDescription($('#tagDesc').val());
 		currentTag.setPOSSuggestion($('#tagPOS').val());
-
+		console.log ('*** CHeck to see if this is working properly!! ***');
+		// **** FIX THIS - is it actually copying the data or is it all by ref?
 		currentTag.set();
 		authorMode.Tags[currentTag.id] = currentTag;
 		
@@ -295,7 +318,7 @@ authorMode.DoTag = function(tagSpan) {
 }
 	
 	
-$(function () {
+authorMode.init = function() {
 	// it is likely that none of this will work with IE prior to version 9
 	
 	$('#authorModeToolbox').hide();
@@ -354,7 +377,6 @@ $(function () {
 	document.write ('</table>');
 */
 }
-);
 
 function enableSelect() {
 	//$('#mainContainer').animate('color: #000;', 500);
@@ -362,7 +384,7 @@ function enableSelect() {
 	$('#mainContainer').unbind('mousedown');
 	
 	$('#mainContainer').bind('mouseup', 
-		function () { authorMode.processSelection(); } );
+		function () { authorMode.selectionHandler(); } );
 	
 }
 

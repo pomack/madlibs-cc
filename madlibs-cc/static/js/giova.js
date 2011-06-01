@@ -35,7 +35,13 @@ saveAuthorStory = function() {
         body = $('.fieldContainer textarea').val(),
         originalStory,
         originalStoryJSONString;
-
+	
+	body += '<p class="authorTagMode">';
+	var rplc = '</p><p class="authorTagMode">';
+	body = body.replace(/\r\n/g, rplc).replace(/[\n]/g, rplc).replace(/[\r]/g, rplc);
+	
+	body += '</p>';
+	
     originalStory = {
         title : title,
         body : body
