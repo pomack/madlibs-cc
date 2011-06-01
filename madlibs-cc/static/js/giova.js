@@ -1,3 +1,4 @@
+var returnedTagObject;
 (function() {
 
 // hide content and manuplation sections on load
@@ -110,6 +111,7 @@ getDataFromAppEngine = function(taggedId) {
         dataType: 'json',
         success: function(data) {
             console.log(data);
+			returnedTagObject = data;
         }
     });
 };
