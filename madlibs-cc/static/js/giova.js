@@ -36,7 +36,13 @@ saveAuthorStory = function() {
         body = $('.fieldContainer textarea').val(),
         originalStory,
         originalStoryJSONString;
-
+	
+	body += '<p class="authorTagMode">';
+	var rplc = '</p><p class="authorTagMode">';
+	body = body.replace(/\r\n/g, rplc).replace(/[\n]/g, rplc).replace(/[\r]/g, rplc);
+	
+	body += '</p>';
+	
     originalStory = {
         title : title,
         body : body
@@ -58,7 +64,7 @@ populateStory = function(title, body) {
         madlibBody = madlibContainer.children('.body');
 
     madlibTitle.text(title);
-    madlibBody.text(body);
+    madlibBody.html(body);
 };
 
 // save tagged story 
@@ -135,9 +141,11 @@ roleDetector = function() {
     activeRole = $('header ul li a.active').text();
 
     if (activeRole === 'Author') {
+    	disableSelect();
         tagAndPlayerTemplate.hide();
         authorTemplate.show();
     } else if (activeRole === 'Tag') {
+    	enableSelect();
         authorTemplate.hide();
         autoFillButton.hide();
         submitButton.hide();
@@ -146,6 +154,7 @@ roleDetector = function() {
         toolbar.hide();
         tagAndPlayerTemplate.show();
     } else if (activeRole === 'Play') {
+    	disableSelect();
         authorTemplate.hide();
         saveButton.hide();
         deleteButton.hide();

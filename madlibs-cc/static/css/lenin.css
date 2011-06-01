@@ -13,6 +13,7 @@ input.authorMode {
 	font-family: Helvetica;
 	display: none;
 }
+p.authorTagMode {padding:5px 0px;}
 div.disabled {color: #ddd;}
 #mainContainer {font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif; font-size:10pt;}
 .authorModeButton {padding:5px 10px; background-color: #aaf; font-size:10pt;}
