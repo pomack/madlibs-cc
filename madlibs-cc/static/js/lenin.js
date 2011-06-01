@@ -9,6 +9,12 @@ function Status(t) {
 	});
 }
 
+function countWords(s) {
+	var x = s;
+	while (x.indexOf('  ') >= 0) {
+		x = x.replace(/  /g, ' ');
+	}
+}
 authorMode.Tag = function Tag (id, originalValue) { 
 	this.id = id;
 	this.originalValue = originalValue;
@@ -111,17 +117,37 @@ authorMode.processSelection = function ()  {
 		 		
 		 		r.setStart(startNode, startPos);
 		 		r.setEnd(endNode, endPos-1);
-				var x = self.ce('span');
-				self.toggleHighlight(x);
-				var tagId = self.getUniqueID('tag-');
-				$(x).attr('id', tagId);
-				r.surroundContents(x);
-	
-				$(x).bind('click', function () {
-					authorMode.editTag(tagId);
-				});
+		 		
+		 		
 				
-				$(x).trigger('click');
+				/*
+				if (true) {
+					$( "#dialog-message" ).dialog({
+						modal: true,
+						buttons: {
+							Yes: function() {
+								$( "#dialog-message" ).dialog( "close" );
+							},
+							No: function () {
+								console.log ('hit no');
+								$( "#dialog-message" ).dialog( "close");
+							}
+						}
+					});
+				}	
+					// check if there is an unreasonable number of words selected
+					*/
+					var x = self.ce('span');
+					self.toggleHighlight(x);
+					var tagId = self.getUniqueID('tag-');
+					$(x).attr('id', tagId);
+					r.surroundContents(x);
+		
+					$(x).bind('click', function () {
+						authorMode.editTag(tagId);
+					});
+					
+					$(x).trigger('click');
 				
 			}
 			else {

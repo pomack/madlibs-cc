@@ -36,6 +36,10 @@
                 </form>
             </div><!-- .enterTitleAndBody -->
         </div><!-- #authorModeForm -->
+        <div id="dialog-message" style="outline-width: 0px; outline-style: initial; outline-color: initial; width: 300px; position: absolute; z-index: 1002; left: 462px; top: 215px; height: 140px; display: none; " class="ui-dialog ui-widget ui-widget-content ui-corner-all  ui-draggable ui-resizable" tabindex="-1" role="dialog" aria-labelledby="ui-dialog-title-dialog-modal"><div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix"><span class="ui-dialog-title" id="ui-dialog-title-dialog-modal">Basic modal dialog</span><a href="#" class="ui-dialog-titlebar-close ui-corner-all" role="button"><span class="ui-icon ui-icon-closethick">close</span></a></div><div id="dialog-modal" class="ui-dialog-content ui-widget-content" style="width: auto; min-height: 0px; height: 105px; ">
+	<p>Adding the modal overlay screen makes the dialog look more prominent because it dims out the page content.</p>
+</div><div class="ui-resizable-handle ui-resizable-n"></div><div class="ui-resizable-handle ui-resizable-e"></div><div class="ui-resizable-handle ui-resizable-s"></div><div class="ui-resizable-handle ui-resizable-w"></div><div class="ui-resizable-handle ui-resizable-se ui-icon ui-icon-gripsmall-diagonal-se ui-icon-grip-diagonal-se" style="z-index: 1001; "></div><div class="ui-resizable-handle ui-resizable-sw" style="z-index: 1002; "></div><div class="ui-resizable-handle ui-resizable-ne" style="z-index: 1003; "></div><div class="ui-resizable-handle ui-resizable-nw" style="z-index: 1004; "></div></div>
+
         <div id="leftColumn">
             <button id="autofill">Auto Fill All</button>
 
@@ -51,7 +55,7 @@
             <input type="button" name="save" value="Delete Story" class="standard_button" id="delete_button" />
 
         </div><!-- #leftCloummn -->
-
+		
         <div id="rightColumn">
             <div id="toolbar">
                 <select id="partofspeech"></select>
@@ -62,19 +66,22 @@
                 <ul class="ui-autocomplete ui-menu ui-widget ui-widget-content ui-corner-all"></ul>
                 <div id="auto-suggest" class="ui-widget" style="margin-top:2em; font-family:Arial"></div>      
             </div><!-- #toolbar -->
-                <div class="authorMode" id="authorModeToolbox">
+                <div class="authorMode" id="authorModeToolbox"> <!-- class used to be authorMode -->
                     <p align="center">TAG DETAILS</p>
-                    <p id="authorModeOriginalValue">Original Value: <span id="authorModeOriginalValueValue"></span></p>
-                    <p id="authorModeDescription"><label for="tagDesc">Description:</label> <input class="authorMode" id="tagDesc" type="text" width="40" /></p>
-                    <p id="authorModePOSSuggestion"><label for="tagPOS">Part of Speech Suggestion:</label> 
+                    <p id="authorModeOriginalValue">Original Value: <span id="authorModeOriginalValueValue" style="display:inline; width: 100px; height: 25px; overflow: auto;"></span></p>
+                    <p>&nbsp;</p>
+                    <p id="authorModePOSSuggestion"><label for="tagPOS">Part of Speech:</label> 
                     	<select class="authorMode" id="tagPOS" name="tagBasePOS">
                     	</select>
-                    	
                     	</p>
-                    <p id="authorModePOSProperties">&nbsp;</p>
                     <p>&nbsp;</p>
+                    <p id="authorModeDescription"><label for="tagDesc">Description:</label> <input class="authorMode" id="tagDesc" type="text" width="40" /></p>
+                    <p>&nbsp;</p>
+                    
                     <p id="authorModeActions"><a class="authorModeButton" id="authorModeToolboxSaveButton">Save</a> <a class="authorModeButton" id="authorModeToolboxCancelButton">Cancel</a> <a class="authorModeButton" id="authorModeToolboxRemoveButton">Remove Tag</a></p>
-                </div><!-- #authorModeToolBox -->
+                </div>
+
+                <!-- #authorModeToolBox -->
         </div><!-- #rightColumn -->
     </div><!-- #mainContainer -->
 
