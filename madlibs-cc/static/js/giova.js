@@ -46,8 +46,9 @@ saveAuthorStory = function() {
     // writing to Tag Mode
     populateStory(title, body);
     sendDataToAppEngine(originalStoryJSONString, function(objId) {
-        id = objId;
-        console.log(id);
+        postId = objId;
+        //return objId; //shanshan's edit
+        console.log(postId);
     });
 };
 
@@ -65,8 +66,10 @@ saveTaggedStory = function() {
    var taggedStory;
    taggedStory = getDataFromHtml();
    sendDataToAppEngine(taggedStory, function(objId) {
-       id = objId;
-       console.log(id);
+       postId = objId;
+      //return objId; //shanshan's edit
+      // console.log(postId);
+      
    });
 };
 
@@ -93,6 +96,8 @@ sendDataToAppEngine = function(data, f) {
         success: function(obj) {
             if (f) {
                 f(obj.id);
+               // console.log(f(obj.id));
+               // getDataFromAppEngine(obj.id);
             } else {
                 console.log('Stored ID ' + obj.id);
             }
@@ -103,15 +108,16 @@ sendDataToAppEngine = function(data, f) {
 // getDataFromAppEngine
 getDataFromAppEngine = function(taggedId) {
     console.log('Called getDataFromAppEngine ' + taggedId);
-    $.ajax({
+   $.ajax({
         url: 'http://localhost:8080/view/' + taggedId + '/',
         contentType: 'application/json',
         type: 'GET',
         dataType: 'json',
         success: function(data) {
-            console.log(data);
+            playerMode.authorData = data;
         }
     });
+    return playerMode.authorData;
 };
 
 roleDetector = function() {
@@ -135,6 +141,7 @@ roleDetector = function() {
     if (activeRole === 'Author') {
         tagAndPlayerTemplate.hide();
         authorTemplate.show();
+        playerMode.clear();
     } else if (activeRole === 'Tag') {
         authorTemplate.hide();
         autoFillButton.hide();
@@ -143,6 +150,7 @@ roleDetector = function() {
         deleteButton.show();
         toolbar.hide();
         tagAndPlayerTemplate.show();
+        playerMode.clear();
     } else if (activeRole === 'Play') {
         authorTemplate.hide();
         saveButton.hide();
@@ -151,7 +159,13 @@ roleDetector = function() {
         submitButton.show();
         toolbar.show();
         tagAndPlayerTemplate.show();
-        getDataFromAppEngine(id);
+       if(playerMode.authorData.tags === undefined){
+        		playerMode.authorData = getDataFromAppEngine(postId);
+        		console.log("hereis:"+playerMode.authorData.tags);
+        		playerMode.init(playerMode.authorData);
+     		}
+     		
+     		
     }
 };
 
