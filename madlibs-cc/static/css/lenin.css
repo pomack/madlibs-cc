@@ -1,6 +1,6 @@
 .highlight {background-color: yellow;}
 .authorMode {font-family:"Lucida Sans Unicode", "Lucida Grande", sans-serif; font-size:10pt;}
-div.authorMode {border: 1px solid; color: black; padding: 5px; display:none; position:fixed; top: 350px; width: 300px; height:130px;}
+div.authorMode {border: 1px solid; color: black; padding: 5px; display:none; position:fixed; /* top: 350px */; width: 287px; height:130px;}
 input.authorMode {
 	border: 1px solid #ccc;
 	font-family: Helvetica;

@@ -23,6 +23,7 @@ getDataFromHtml = function() {
     madlibObject = {};
     madlibObject.title = madlibTitle;
     madlibObject.body = madlibBody;
+    madlibObject.tags = authorMode.Tags;
 
     // convert object to a json string and return
     madlibString = JSON.stringify(madlibObject);
@@ -73,7 +74,7 @@ saveTaggedStory = function() {
 clearTaggedStory = function() {
 
     // Empty out the array of tags
-    authorMode.Tags = [];
+    authorMode.Tags = {};
 
     // TODO Strip all span tags that are surrounding a highlighted word
 }
@@ -138,10 +139,14 @@ roleDetector = function() {
         authorTemplate.hide();
         autoFillButton.hide();
         submitButton.hide();
+        saveButton.show();
+        deleteButton.show();
         toolbar.hide();
         tagAndPlayerTemplate.show();
     } else if (activeRole === 'Play') {
         authorTemplate.hide();
+        saveButton.hide();
+        deleteButton.hide();
         autoFillButton.show();
         submitButton.show();
         toolbar.show();
