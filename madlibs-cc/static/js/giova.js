@@ -1,3 +1,4 @@
+var returnedTagObject;
 (function() {
 
 // hide content and manuplation sections on load
@@ -35,7 +36,13 @@ saveAuthorStory = function() {
         body = $('.fieldContainer textarea').val(),
         originalStory,
         originalStoryJSONString;
-
+	
+	body += '<p class="authorTagMode">';
+	var rplc = '</p><p class="authorTagMode">';
+	body = body.replace(/\r\n/g, rplc).replace(/[\n]/g, rplc).replace(/[\r]/g, rplc);
+	
+	body += '</p>';
+	
     originalStory = {
         title : title,
         body : body
@@ -58,7 +65,7 @@ populateStory = function(title, body) {
         madlibBody = madlibContainer.children('.body');
 
     madlibTitle.text(title);
-    madlibBody.text(body);
+    madlibBody.html(body);
 };
 
 // save tagged story 
@@ -114,7 +121,8 @@ getDataFromAppEngine = function(taggedId) {
         type: 'GET',
         dataType: 'json',
         success: function(data) {
-            playerMode.authorData = data;
+	    playerMode.authorData = data;
+            console.log(data);
         }
     });
     return playerMode.authorData;
@@ -139,10 +147,12 @@ roleDetector = function() {
     activeRole = $('header ul li a.active').text();
 
     if (activeRole === 'Author') {
+    	disableSelect();
         tagAndPlayerTemplate.hide();
         authorTemplate.show();
         playerMode.clear();
     } else if (activeRole === 'Tag') {
+    	enableSelect();
         authorTemplate.hide();
         autoFillButton.hide();
         submitButton.hide();
@@ -152,6 +162,7 @@ roleDetector = function() {
         tagAndPlayerTemplate.show();
         playerMode.clear();
     } else if (activeRole === 'Play') {
+    	disableSelect();
         authorTemplate.hide();
         saveButton.hide();
         deleteButton.hide();
