@@ -139,9 +139,11 @@ roleDetector = function() {
     activeRole = $('header ul li a.active').text();
 
     if (activeRole === 'Author') {
+    	disableSelect();
         tagAndPlayerTemplate.hide();
         authorTemplate.show();
     } else if (activeRole === 'Tag') {
+    	enableSelect();
         authorTemplate.hide();
         autoFillButton.hide();
         submitButton.hide();
@@ -150,6 +152,7 @@ roleDetector = function() {
         toolbar.hide();
         tagAndPlayerTemplate.show();
     } else if (activeRole === 'Play') {
+    	disableSelect();
         authorTemplate.hide();
         saveButton.hide();
         deleteButton.hide();

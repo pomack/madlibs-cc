@@ -2,7 +2,7 @@
 
 var authorMode = authorMode || {};
 var currentTag = {};
-
+var authorModeSelectionEnabled = false;
 function Status(t) {
 	$('#toolbarStatusMsg').text(t).show(500, function() {
 		setTimeout(function() {$('#toolbarStatusMsg').hide(500);}, 1000);
@@ -198,7 +198,9 @@ authorMode.editTag = function(id) {
 			'WRB' :'Wh-adverb'
 		};
 	// if this is a new tag, add it to the Tags object
+	$('#authorModeToolboxRemoveButton').hide();
 	if (!authorMode.Tags[id]) {
+		
 		authorMode.Tags[id] = new authorMode.Tag(id, $('#' + id).text().trim());
 		// automatically determine the POS and properties
 		
@@ -267,15 +269,16 @@ authorMode.editTag = function(id) {
 					}
 				});
 
-		$('#authorModeToolboxRemoveButton').hide();
+		
 	}
 	else {
 		// add all the parts of speech
+		$('#tagPOS option').remove().attr('disabled', true);
 		for (var i in posList) {
-			$('#tagPOS').append('<option value="' + i + (authorMode.Tags[id].POSSuggestion == i) ? ' selected' : '' + '">' + posList[i] + '</option>');	
+			$('#tagPOS').append('<option ' + ((authorMode.Tags[id].POSSuggestion == i) ? ' selected' : '') + ' value="' + i + '">' + posList[i] + '</option>');	
 		}
 		$('#tagPOS').removeAttr('disabled');
-		$('#authorModeToolboxRemoveButton').show();
+		if (authorMode.Tags[id].hasBeenSet) $('#authorModeToolboxRemoveButton').show();
 	}
 	
 	currentTag = authorMode.Tags[id];
@@ -311,10 +314,7 @@ authorMode.saveTags = function() {
 
 authorMode.DoTag = function(tagSpan) {
 	// create a new tag
-	
-	
-	
-	
+
 }
 	
 	
@@ -322,44 +322,21 @@ authorMode.init = function() {
 	// it is likely that none of this will work with IE prior to version 9
 	
 	$('#authorModeToolbox').hide();
-	enableSelect();
 
 	$('#authorModePOSSuggestion').bind('change', function() {
 		var p = $(this).val();
-		
-		/*
-		switch (p) {
-			case 'Adjective':
-				break;
-			case 'Interjection':
-				break;
-			case 'Noun':
-				break;
-			case 'Number':
-				break;
-			case 'Ordinal Number':
-				break;
-			case 'Pronoun':
-				break;
-			case 'Proper Noun':
-				break;
-			case 'Verb':
-				break;
-			
-		}
-		*/
-		
 	});
 	
 	$('#authorModeToolboxSaveButton').bind('click', function() {
 			authorMode.saveTags();
+			$('#authorModeToolbox').hide();
+		enableSelect();
 	});
 	
 	$('#authorModeToolboxCancelButton').bind('click', function() {
 		if (!currentTag.hasBeenSet) authorMode.removeTag(currentTag.id);
 		$('#authorModeToolbox').hide();
 		enableSelect();
-		
 	});
 	
 	$('#authorModeToolboxRemoveButton').bind('click', function() {
@@ -367,7 +344,7 @@ authorMode.init = function() {
 		$('#authorModeToolbox').hide();
 		enableSelect();
 	});
-	
+
 	/*document.write ('<table>');
 	for(var word in POSTAGGER_LEXICON) {
 		var tmp = ''; 
@@ -380,17 +357,25 @@ authorMode.init = function() {
 
 function enableSelect() {
 	//$('#mainContainer').animate('color: #000;', 500);
-	$('#mainContainer').removeClass('disabled');
-	$('#mainContainer').unbind('mousedown');
-	
-	$('#mainContainer').bind('mouseup', 
-		function () { authorMode.selectionHandler(); } );
-	
+	if (!authorModeSelectionEnabled) {
+		$('#mainContainer').removeClass('disabled');
+		//$('#mainContainer').unbind('mousedown');
+		
+		$('#mainContainer').bind('mouseup', 
+			function () { authorMode.selectionHandler(); } );
+		
+		authorModeSelectionEnabled = true;
+	}
 }
 
 function disableSelect() {
 	//$('#mainContainer:not(span)').animate({ opacity:0.1 }, 500, function () { $('span').css({ opacity: 1 })});
-	$('#mainContainer').addClass('disabled');
-	$('#mainContainer').unbind('mouseup');
+	if (authorModeSelectionEnabled) {
+		$('#mainContainer').addClass('disabled');
+		$('#mainContainer').unbind('mouseup');
+		authorModeSelectionEnabled = false;
+	}
 	//$('#mainContainer').bind('mousedown', function () {return false;})
 }
+
+$(function () { authorMode.init(); });
