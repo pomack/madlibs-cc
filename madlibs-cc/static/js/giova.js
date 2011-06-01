@@ -63,7 +63,7 @@ populateStory = function(title, body) {
         madlibBody = madlibContainer.children('.body');
 
     madlibTitle.text(title);
-    madlibBody.text(body);
+    madlibBody.html(body);
 };
 
 // save tagged story 
