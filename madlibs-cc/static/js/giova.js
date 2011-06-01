@@ -53,8 +53,9 @@ saveAuthorStory = function() {
     // writing to Tag Mode
     populateStory(title, body);
     sendDataToAppEngine(originalStoryJSONString, function(objId) {
-        id = objId;
-        console.log(id);
+        postId = objId;
+        //return objId; //shanshan's edit
+        console.log(postId);
     });
 };
 
@@ -72,8 +73,10 @@ saveTaggedStory = function() {
    var taggedStory;
    taggedStory = getDataFromHtml();
    sendDataToAppEngine(taggedStory, function(objId) {
-       id = objId;
-       console.log(id);
+       postId = objId;
+      //return objId; //shanshan's edit
+      // console.log(postId);
+      
    });
 };
 
@@ -100,6 +103,8 @@ sendDataToAppEngine = function(data, f) {
         success: function(obj) {
             if (f) {
                 f(obj.id);
+               // console.log(f(obj.id));
+               // getDataFromAppEngine(obj.id);
             } else {
                 console.log('Stored ID ' + obj.id);
             }
@@ -110,21 +115,22 @@ sendDataToAppEngine = function(data, f) {
 // getDataFromAppEngine
 getDataFromAppEngine = function(taggedId) {
     console.log('Called getDataFromAppEngine ' + taggedId);
-    $.ajax({
+   $.ajax({
         url: 'http://localhost:8080/view/' + taggedId + '/',
         contentType: 'application/json',
         type: 'GET',
         dataType: 'json',
         success: function(data) {
+	    playerMode.authorData = data;
             console.log(data);
-			returnedTagObject = data;
         }
     });
+    return playerMode.authorData;
 };
 
 roleDetector = function() {
 
-    var that = $(this)
+    var that = $(this),
         authorTemplate = $('#authorModeForm'),
         tagAndPlayerTemplate = $('#leftColumn, #rightColumn'),
         toolbar = $('#toolbar'),
@@ -144,6 +150,7 @@ roleDetector = function() {
     	disableSelect();
         tagAndPlayerTemplate.hide();
         authorTemplate.show();
+        playerMode.clear();
     } else if (activeRole === 'Tag') {
     	enableSelect();
         authorTemplate.hide();
@@ -153,6 +160,7 @@ roleDetector = function() {
         deleteButton.show();
         toolbar.hide();
         tagAndPlayerTemplate.show();
+        playerMode.clear();
     } else if (activeRole === 'Play') {
     	disableSelect();
         authorTemplate.hide();
@@ -162,7 +170,13 @@ roleDetector = function() {
         submitButton.show();
         toolbar.show();
         tagAndPlayerTemplate.show();
-        getDataFromAppEngine(id);
+       if(playerMode.authorData.tags === undefined){
+        		playerMode.authorData = getDataFromAppEngine(postId);
+        		console.log("hereis:"+playerMode.authorData.tags);
+        		playerMode.init(playerMode.authorData);
+     		}
+     		
+     		
     }
 };
 

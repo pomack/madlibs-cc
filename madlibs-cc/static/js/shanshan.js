@@ -1,51 +1,60 @@
-//global Object: toolbar UI, used for UI animation and load the right form
-var toolbarUI = toolbarUI || {};
-toolbarUI.sideToolbar = $("#toolbar"); 
-
-toolbarUI.openToolbar = function(){
-	var el = toolbarUI.sideToolbar; //declaing dependency
-		el.onkeydown = function(evt) {
-	    evt = evt || window.event;
-	    alert("keydown: " + evt.keyCode);
-		el.show();
-	};
-}
-
-toolbarUI.closeToolbar = function(){
-	var el = toolbarUI.sideToolbar; //declaing dependency
-		el.onkeydown = function(evt) {
-	    evt = evt || window.event;
-	    alert("keydown: " + evt.keyCode);
-		el.hide();
-	};
-}
-
-//global: player mode object
-var playerMode = playerMode || {};
-playerMode.switch = false;
-playerMode.saveArray = [];
-//point to the tag object generated from author mode, rightnow, use a static object
-playerMode.getAuthorTags = [
-		{Tag:{id:"tag-1",originalValue:"your 'joy' factor",POSSuggestion:"NN",description:"desc 1"}},
-		{Tag:{id:"tag-2",originalValue:"your price",POSSuggestion:"VB",description:"desc 2"}},
-		{Tag:{id:"tag-3",originalValue:"the math",POSSuggestion:"Phrase",description:"desc 3"}}
-]; 
-
-
-//form object
-playerMode.form = {
-	elementSpan: document.getElementsByClassName("highlight")
-}
-
-playerMode.form.enableEdit = function(){
+/*Global variables to share between author and player*/
+var postId = "",
+	 playerMode = playerMode || {
+		switch: false,
+		authorData: {}, //store global object in local variable, easy to access
+		saveArray: [],
+		init:{},
+		/*playerField: function(fieldObject){
+			this.element = fieldObject;
+		},
+		tagSelector: function(){
+			
+		},
+		*/
+		form: {
+				elementSpan: document.getElementsByClassName("highlight")
+		},
+		dragDropHelper: {
+				draggedValue: "",
+				dropBoolean: false	
+			},
+		autoSuggestHelper: {}
+		};
+		
+/*shan's code*/
+(function() {
+	
+playerMode.form.init = function(data){ //data: author tagged object
 	for(var i=0; i<playerMode.form.elementSpan.length; i++){
 		playerMode.form.elementSpan[i].innerHTML = "<input type='text' class='ui-widget-header' value=''/>";
 		playerMode.saveArray[i] = "";
 	}
+	
+	$("#partofspeech").append("<option value='part of speech'>part of speech</option>");
+	console.log(data.tags);
+	if(data.tags !== undefined){
+		for(key in data.tags){
+			//if(playerMode.authorData.tags.hasOwnProperty(key)){			
+				$("#partofspeech").append("<option value='"+data.tags[key].POSSuggestion+"'>"+data.tags[key].POSSuggestion+"</option>"); 
+				//}
+		}
+	}
 }
 
 playerMode.form.autofill = function(){
-		
+		//var randomNum = Math.ceil(Math.random()*data.words.length);
+		for(key in playerMode.authorData.tags){
+			//console.log("key:"+playerMode.authorData.tags[key]);
+			$.getJSON("http://madlibs-cc.appspot.com/find/?category="+playerMode.authorData.tags[key].POSSuggestion, function(data) 				{ console.log(playerMode.authorData.tags[key].POSSuggestion);
+					//console.log("map i"+i);
+					if(data.words.length > 1){
+						$("span#"+playerMode.authorData.tags[key].id).find("input").val(data.words[Math.ceil(Math.random()*data.words.length)].text);
+					}else{
+						$("span#"+playerMode.authorData.tags[key].id).find("input").val("Please type in here").css("background","red");	
+					}
+				});
+		}
 }
 	
 playerMode.form.validate = function(data){ //data: playerMode.saveArray 
@@ -64,10 +73,6 @@ playerMode.form.updateArray = function(index,value){
 }
 
 //Drag/Drop Object
-playerMode.dragDropHelper = {
-		draggedValue: "",
-		dropBoolean: false	
-}
 
 playerMode.dragDropHelper.dragMode = function(){
 	$("a","#auto-suggest").draggable({ 
@@ -106,14 +111,14 @@ playerMode.dragDropHelper.dropMode = function(){
 	}else{
 		dropObject = $("span.highlight:eq("+$("#currentIndex").html()+")");
 	}
-	console.log($("#currentIndex").html());
+	//console.log($("#currentIndex").html());
 	dropObject.droppable({
 		accept: ".draggable",
 		hoverClass: "drop-hover",
 		activeClass: "drop-active",
 		greedy: true,
 		drop: function( event, ui ) {
-			console.log($(this));
+			//console.log($(this));
 			playerMode.dragDropHelper.dropBoolean = true;
 			var index = $("span.highlight").index($(this).parent());
 			$(this).val(playerMode.dragDropHelper.draggedValue);
@@ -130,11 +135,10 @@ playerMode.dragDropHelper.dropMode = function(){
 }
 
 //auto search object: populate results, enable dragging
-playerMode.autoSuggestHelper = {}
 
 playerMode.autoSuggestHelper.init = function(){
 	$( "#suggestion" ).val("Please Select a Category").attr("disabled",true).css("background","#ccc");
-	playerMode.autoSuggestHelper.generateCat();
+	//playerMode.autoSuggestHelper.generateCat(returnedTagObject);
 	playerMode.autoSuggestHelper.generateList();
 	
 	$("input.ui-widget-header").bind("focus",function(){
@@ -153,15 +157,6 @@ playerMode.autoSuggestHelper.init = function(){
 		//todo: add the auto suggestion based on the typed in content + the current tag desc, tag category
 	});
 	
-}
-
-playerMode.autoSuggestHelper.generateCat = function(){
-	$("#partofspeech").append("<option value=''/>");
-	for(var i =0; i < playerMode.getAuthorTags.length; i++){
-		$("#partofspeech").append("<option value='"+playerMode.getAuthorTags[i].Tag.POSSuggestion+"'>"+playerMode.getAuthorTags[i].Tag.POSSuggestion+"</option>"); 
-	}
-	
-	//TODO: RETURN PARTOFSPEECH ARRAY
 }
 
 playerMode.autoSuggestHelper.updateCategory = function(index){
@@ -227,55 +222,42 @@ function consoleLog(){
 	console.log(playerMode.saveArray);
 }
 
-playerMode.init = function(){
-	var element = $('#mainContainer'),
-    	  dragEl = $("span","#auto-suggest"),
-	 	  dropEl = $("input.ui-widget-header"),
-	 	  autoFill = $("#autofill"),
-	 	  submitBtn = $("#submit");
-	 	  
-	//Consider so far we have all the spans tagged, and tag informaiton populated.(Lenin)
-  	//lenin provide a disableAuthorMode function,rightnow, disable his js file.
-  	
+//authorObject stores the title, body, tags properties, tags are objects
+playerMode.init = function(data){
   	//generate the playermode forms, and attach toolbar UI to onblur event
-	playerMode.form.enableEdit();
-	playerMode.dragDropHelper.dropMode(); //init the droppable input
-	//onblur open the toolbar, as user type, generate the auto-suggestion result
-	
-	
-	//Toolbar auto-suggest
-	
-	playerMode.autoSuggestHelper.init();
-	
+  	//onblur open the toolbar, as user type, generate the auto-suggestion result
+	//init the droppable input
 	//click on the auto-suggested result, enable drag and drop
-	dragEl.mousedown( playerMode.dragDropHelper.dragMode );
-	//drag and drop to the desired field
 	//auto-fill the whole form for user, random pick the words matching the partofspeech
-	autoFill.click(function(){
-		$.map(playerMode.getAuthorTags,function(n,i){
-			var randomNum = Math.ceil(Math.random()*9);
-			$.getJSON("http://madlibs-cc.appspot.com/find/?category="+n.Tag.POSSuggestion, function(data) { console.log(randomNum);
-				console.log(i);
-				if(data.words.length > 1){
-					$("span.highlight:eq("+i+")").find("input").val(data.words[1].text);
-				}else{
-					$("span.highlight:eq("+i+")").find("input").val("Please type in here").css("background","red");	
-				}
-			});	
-		});	
-	});
 	//validate the fields(make sure is valid word) and submit form,close the toolbar.
-	$("#player_submit").click(function(){
-		playerMode.form.validate();
-		$("#user-data").html(playerMode.saveArray);
-		$.ajax(function(){
-						
-			});
-		});
-		consoleLog();	
+	
+	//playerMode.form.init(playerMode.authorData);
+	console.log(data);
+	for(var i=0; i<playerMode.form.elementSpan.length; i++){
+		playerMode.form.elementSpan[i].innerHTML = "<input type='text' class='ui-widget-header' value=''/>";
+		playerMode.saveArray[i] = "";
+	}
+	
+	$("#partofspeech").append("<option value='part of speech'>part of speech</option>");
+	console.log(playerMode.authorData);
+	if(playerMode.authorData.tags !== undefined){
+		for(key in playerMode.authorData.tags){
+			//if(playerMode.authorData.tags.hasOwnProperty(key)){			
+				$("#partofspeech").append("<option value='"+playerMode.authorData.tags[key].POSSuggestion+"'>"+playerMode.authorData.tags[key].POSSuggestion+"</option>"); 
+				//}
+		}
+	}
+	playerMode.dragDropHelper.dropMode(); 
+	playerMode.autoSuggestHelper.init();
+	$("span","#auto-suggest").mousedown( playerMode.dragDropHelper.dragMode );
+	$("#autofill").click(playerMode.form.autofill);
+	//todo: submit button 
 }
 
+playerMode.clear = function(){
+	playerMode.authorData = {};	
+	$("#partofspeech").html("");
+	//console.log(playerMode.authorData);
+}
 
-$(document).ready(function() {
-   playerMode.init();
-});
+})();
