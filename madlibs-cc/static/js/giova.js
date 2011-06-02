@@ -113,7 +113,7 @@ sendDataToAppEngine = function(data, f) {
 };
 
 // getDataFromAppEngine
-getDataFromAppEngine = function(taggedId) {
+getDataFromAppEngine = function(taggedId,f) {
     console.log('Called getDataFromAppEngine ' + taggedId);
    $.ajax({
         url: 'http://localhost:8080/view/' + taggedId + '/',
@@ -121,11 +121,15 @@ getDataFromAppEngine = function(taggedId) {
         type: 'GET',
         dataType: 'json',
         success: function(data) {
-	    playerMode.authorData = data;
-            console.log(data);
+		  		if(f){	         
+	        // playerMode.authorData = data;
+            //console.log(data);
+            //console.log(playerMode.authorData);
+            f(data);
+         	}
         }
     });
-    return playerMode.authorData;
+   // return playerMode.authorData;
 };
 
 roleDetector = function() {
@@ -162,7 +166,7 @@ roleDetector = function() {
         tagAndPlayerTemplate.show();
         playerMode.clear();
     } else if (activeRole === 'Play') {
-    	disableSelect();
+    	  disableSelect();
         authorTemplate.hide();
         saveButton.hide();
         deleteButton.hide();
@@ -170,11 +174,14 @@ roleDetector = function() {
         submitButton.show();
         toolbar.show();
         tagAndPlayerTemplate.show();
-       if(playerMode.authorData.tags === undefined){
-        		playerMode.authorData = getDataFromAppEngine(postId);
-        		console.log("hereis:"+playerMode.authorData.tags);
-        		playerMode.init(playerMode.authorData);
-     		}
+      // if(playerMode.authorData.tags === undefined){
+        		getDataFromAppEngine(postId, function(data){
+						playerMode.init(data); 
+						console.log(data);       			
+        			});
+        		//console.log("hereis:"+playerMode.authorData.tags);
+        		//playerMode.init(playerMode.authorData);
+     		//}
      		
      		
     }
