@@ -5,13 +5,6 @@ var postId = "",
 		authorData: {}, //store global object in local variable, easy to access
 		saveArray: [],
 		init:{},
-		/*playerField: function(fieldObject){
-			this.element = fieldObject;
-		},
-		tagSelector: function(){
-			
-		},
-		*/
 		form: {
 				elementSpan: document.getElementsByClassName("highlight")
 		},
@@ -233,6 +226,9 @@ playerMode.init = function(data){
 	
 	//playerMode.form.init(playerMode.authorData);
 	console.log(data);
+	playerMode.authorData = data;
+	
+	$("span.highlight").unbind("click");
 	for(var i=0; i<playerMode.form.elementSpan.length; i++){
 		playerMode.form.elementSpan[i].innerHTML = "<input type='text' class='ui-widget-header' value=''/>";
 		playerMode.saveArray[i] = "";
@@ -244,6 +240,7 @@ playerMode.init = function(data){
 		for(key in playerMode.authorData.tags){
 			//if(playerMode.authorData.tags.hasOwnProperty(key)){			
 				$("#partofspeech").append("<option value='"+playerMode.authorData.tags[key].POSSuggestion+"'>"+playerMode.authorData.tags[key].POSSuggestion+"</option>"); 
+				
 				//}
 		}
 	}
