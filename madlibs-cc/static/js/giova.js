@@ -153,6 +153,11 @@ roleDetector = function() {
         playerMode.clear();
     } else if (activeRole === 'Tag') {
     	enableSelect();
+    	$('#mainContainer').removeClass('disabled');
+		//$('#mainContainer').unbind('mousedown');
+		
+		$('#mainContainer').bind('mouseup', 
+			function () { authorMode.selectionHandler(); } );
         authorTemplate.hide();
         autoFillButton.hide();
         submitButton.hide();

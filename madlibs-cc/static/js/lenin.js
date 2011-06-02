@@ -182,6 +182,7 @@ authorMode.editTag = function(id) {
 	
 	// disable other selections
 	disableSelect();
+	$('#mainContainer').unbind('mouseup');
 	$('#mainContainer').addClass('disabled');
 	
 	var posList = {
@@ -335,6 +336,12 @@ authorMode.saveTags = function() {
 		//clear values
 		$('#authorModeToolbox').fadeOut(350);
 		$('#tagDesc,#tagPOS').val('');
+		$('#mainContainer').removeClass('disabled');
+		//$('#mainContainer').unbind('mousedown');
+		
+		$('#mainContainer').bind('mouseup', 
+			function () { authorMode.selectionHandler(); } );
+		
 		enableSelect();	
 }
 
@@ -363,12 +370,25 @@ authorMode.init = function() {
 		if (!currentTag.hasBeenSet) authorMode.removeTag(currentTag.id);
 		$('#authorModeToolbox').fadeOut(350);
 		enableSelect();
+		$('#mainContainer').removeClass('disabled');
+		//$('#mainContainer').unbind('mousedown');
+		
+		$('#mainContainer').bind('mouseup', 
+			function () { authorMode.selectionHandler(); } );
+		
+
 	});
 	
 	$('#authorModeToolboxRemoveButton').bind('click', function() {
 		authorMode.removeTag(currentTag.id);
 		$('#authorModeToolbox').fadeOut(350);
 		enableSelect();
+		$('#mainContainer').removeClass('disabled');
+		//$('#mainContainer').unbind('mousedown');
+		
+		$('#mainContainer').bind('mouseup', 
+			function () { authorMode.selectionHandler(); } );
+		
 	});
 
 	/*document.write ('<table>');
@@ -383,12 +403,8 @@ authorMode.init = function() {
 
 function enableSelect() {
 	//$('#mainContainer').animate('color: #000;', 500);
+	authorMode.selectionHandler = authorMode.processSelection; 
 	if (!authorModeSelectionEnabled) {
-		$('#mainContainer').removeClass('disabled');
-		//$('#mainContainer').unbind('mousedown');
-		
-		$('#mainContainer').bind('mouseup', 
-			function () { authorMode.selectionHandler(); } );
 		
 		authorModeSelectionEnabled = true;
 	}
@@ -396,9 +412,10 @@ function enableSelect() {
 
 function disableSelect() {
 	//$('#mainContainer:not(span)').animate({ opacity:0.1 }, 500, function () { $('span').css({ opacity: 1 })});
+	authorMode.selectionHandler = authorMode.doNotProcessSelection;
 	if (authorModeSelectionEnabled) {
-		$('#mainContainer').addClass('disabled');
-		$('#mainContainer').unbind('mouseup');
+		//$('#mainContainer').addClass('disabled');
+		//$('#mainContainer').unbind('mouseup');
 		authorModeSelectionEnabled = false;
 	}
 	//$('#mainContainer').bind('mousedown', function () {return false;})
