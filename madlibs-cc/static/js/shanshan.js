@@ -137,7 +137,7 @@ playerMode.autoSuggestHelper.init = function(){
 	$("input.ui-widget-header").bind("focus",function(){
 		var currentIndex = $("span.highlight").index($(this).parent());
 		//if(currentIndex == -1){ currentIndex = 0;}
-			$("#currentIndex").html(currentIndex);
+			//$("#currentIndex").html(currentIndex);
 			$(this).val("").css("background","#fff");
 			$(".ui-autocomplete").children().remove();
 			playerMode.autoSuggestHelper.updateCategory(currentIndex+1);
@@ -227,19 +227,27 @@ playerMode.init = function(data){
 	//playerMode.form.init(playerMode.authorData);
 	console.log(data);
 	playerMode.authorData = data;
+	$("div.body").hide();
 	
-	$("span.highlight").unbind("click");
+	//todo: create new table with partofspeech and description
+	
+	var newContainer = document.createElement("div");
+	newContainer.setAttribute("id","playerform");
+	$("#leftColumn").append(newContainer);
+	//$("span.highlight").unbind("click");
 	for(var i=0; i<playerMode.form.elementSpan.length; i++){
-		playerMode.form.elementSpan[i].innerHTML = "<input type='text' class='ui-widget-header' value=''/>";
+		//$("#leftColumn").append("<span class='highlight'><input type='text' class='ui-widget-header' value=''/></span>");
 		playerMode.saveArray[i] = "";
 	}
 	
+	//create the select dropdown list
 	$("#partofspeech").append("<option value='part of speech'>part of speech</option>");
 	console.log(playerMode.authorData);
 	if(playerMode.authorData.tags !== undefined){
 		for(key in playerMode.authorData.tags){
 			//if(playerMode.authorData.tags.hasOwnProperty(key)){			
 				$("#partofspeech").append("<option value='"+playerMode.authorData.tags[key].POSSuggestion+"'>"+playerMode.authorData.tags[key].POSSuggestion+"</option>"); 
+				$("#leftColumn").append("<span class='highlight'><label>"+playerMode.authorData.tags[key].POSSuggestion+"</label><input type='text' class='ui-widget-header' value=''/><p>"+playerMode.authorData.tags[key].description+"</p></span>");
 				
 				//}
 		}

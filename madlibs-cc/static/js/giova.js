@@ -154,6 +154,7 @@ roleDetector = function() {
     	disableSelect();
         tagAndPlayerTemplate.hide();
         authorTemplate.show();
+        $("div.body").show();
         playerMode.clear();
     } else if (activeRole === 'Tag') {
     	enableSelect();
