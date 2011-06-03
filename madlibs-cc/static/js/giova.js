@@ -91,6 +91,13 @@ clearTaggedStory = function() {
     // TODO Strip all span tags that are surrounding a highlighted word
 }
 
+savePlayedStory = function() {
+    var playedStory = getDataFromHtml();
+    sendDataToAppEngine(playedStory, function(objId) {
+        postId = objId;
+    });
+}
+
 // sendDataToAppEngine sends the returned string from getDataFromHtml 
 // to our appEngine /store/ using jQuery's ajax method
 sendDataToAppEngine = function(data, f) {
