@@ -1,11 +1,13 @@
-var returnedTagObject;
+var getDataFromHtml,sendDataToAppEngine;
 (function() {
 
 // hide content and manuplation sections on load
 $('#leftColumn, #rightColumn').hide();
 
 // declare variables up top to avoid hoisting
-var getDataFromHtml, saveAuthoredStory, saveTaggedStory, savePlayedStory, sendDataToAppEngine, getDataFromAppEngine, roleDetector, roles = $('header ul li a'), activeRole, saveButton = $('#save_button'), deleteButton = $('#delete_button'), submitButton = $('#submitter');
+
+//shan: make the getDataFromHtml,sendDataToAppEngine global variable
+var saveAuthoredStory, saveTaggedStory, savePlayedStory, getDataFromAppEngine, roleDetector, roles = $('header ul li a'), activeRole, saveButton = $('#save_button'), deleteButton = $('#delete_button'), submitButton = $('#submitter');
 
 // getDataFromHtml simply gathers the DOM elements we want to get data from, 
 // inserts their values into an object and returns a string version of that object
