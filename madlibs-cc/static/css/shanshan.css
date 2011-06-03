@@ -1,14 +1,15 @@
 /*Shanshan*/
 /*layout*/
 #mainContainer{
-	width:400px;
+	width:500px;
 	float:left;
 }
 #toolbar{
-	width:300px;
-	margin-left:450px;
-	
+	width:200px;
+	margin-left:500px;
+	background:none;
 }
+
 #toolbar #auto-suggest{
 	
 }
@@ -21,10 +22,6 @@
 }
 .lightup{
 	background:blue;
-}
-input{
-	border:none;
-	border-bottom:1px solid #ccc;
 }
 /*draggable*/
 span p{color:blue;}
@@ -59,3 +56,9 @@ span p{color:blue;}
 	display:block !important;
 	list-style:none !important;
 }
+
+/**/
+#leftColumn article{width:100%;margin-bottom:20px;}
+#leftColumn button{float:right;}
+#leftColumn #playerform li{width:100%;}
+#leftColumn #playerform li label{width:40%;margin-left:10px;}

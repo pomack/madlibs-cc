@@ -1,11 +1,13 @@
-var returnedTagObject;
+var getDataFromHtml,sendDataToAppEngine;
 (function() {
 
 // hide content and manuplation sections on load
 $('#leftColumn, #rightColumn').hide();
 
 // declare variables up top to avoid hoisting
-var getDataFromHtml, saveAuthoredStory, saveTaggedStory, savePlayedStory, sendDataToAppEngine, getDataFromAppEngine, roleDetector, roles = $('header ul li a'), activeRole, saveButton = $('#save_button'), deleteButton = $('#delete_button'), submitButton = $('#submitter');
+
+//shan: make the getDataFromHtml,sendDataToAppEngine global variable
+var saveAuthoredStory, saveTaggedStory, savePlayedStory, getDataFromAppEngine, roleDetector, roles = $('header ul li a'), activeRole, saveButton = $('#save_button'), deleteButton = $('#delete_button'), submitButton = $('#submitter');
 
 // getDataFromHtml simply gathers the DOM elements we want to get data from, 
 // inserts their values into an object and returns a string version of that object
@@ -89,6 +91,13 @@ clearTaggedStory = function() {
     // TODO Strip all span tags that are surrounding a highlighted word
 }
 
+savePlayedStory = function() {
+    var playedStory = getDataFromHtml();
+    sendDataToAppEngine(playedStory, function(objId) {
+        postId = objId;
+    });
+}
+
 // sendDataToAppEngine sends the returned string from getDataFromHtml 
 // to our appEngine /store/ using jQuery's ajax method
 sendDataToAppEngine = function(data, f) {
@@ -154,6 +163,7 @@ roleDetector = function() {
     	disableSelect();
         tagAndPlayerTemplate.hide();
         authorTemplate.show();
+        $("div.body").show();
         playerMode.clear();
     } else if (activeRole === 'Tag') {
     	enableSelect();

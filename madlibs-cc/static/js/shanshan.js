@@ -2,12 +2,11 @@
 var postId = "",
 	 playerMode = playerMode || {
 		switch: false,
-		authorData: {}, //store global object in local variable, easy to access
+		storyContainer: null,
+		authorData: {}, //pass from author and tag mode
 		saveArray: [],
 		init:{},
-		form: {
-				elementSpan: document.getElementsByClassName("highlight")
-		},
+		form:{},
 		dragDropHelper: {
 				draggedValue: "",
 				dropBoolean: false	
@@ -18,20 +17,85 @@ var postId = "",
 /*shan's code*/
 (function() {
 	
-playerMode.form.init = function(data){ //data: author tagged object
-	for(var i=0; i<playerMode.form.elementSpan.length; i++){
-		playerMode.form.elementSpan[i].innerHTML = "<input type='text' class='ui-widget-header' value=''/>";
-		playerMode.saveArray[i] = "";
-	}
+playerMode.form.createInterface = function(){ //data: author tagged object
+	
+	playerMode.storyContainer = document.createElement("div");
+	playerMode.storyContainer.setAttribute("id","playerform");
+	var newstory = "<ul>";
+	var posList = {
+			'Phrase' :'Phrase',
+			'CC' :'Coord Conjuncn',
+			'CD' :'Cardinal number',
+			'DT' :'Determiner',
+			'EX' :'Existential there',
+			'FW' :'Foreign Word',
+			'IN' :'Preposition',
+			'JJ' :'Adjective',
+			'JJR' :'Adj., comparative',
+			'JJS' :'Adj., superlative',
+			'LS' :'List item marker',
+			'MD' :'Modal',
+			'NN' :'Noun, sing. or mass',
+			'NNP' :'Proper noun, sing.',
+			'NNPS' :'Proper noun, plural',
+			'NNS' :'Noun, plural',
+			'POS' :'Possessive ending',
+			'PDT' :'Predeterminer',
+			'PP$' :'Possessive pronoun',
+			'PRP' :'Personal pronoun',
+			'RB' :'Adverb',
+			'RBR' :'Adverb, comparative',
+			'RBS' :'Adverb, superlative',
+			'RP' :'Particle',
+			'SYM' :'Symbol',
+			'TO' :'ÒtoÓ',
+			'UH' :'Interjection',
+			'VB' :'verb, base form',
+			'VBD' :'verb, past tense',
+			'VBG' :'verb, gerund',
+			'VBN' :'verb, past part',
+			'VBP' :'Verb, present',
+			'VBZ' :'Verb, present',
+			'WDT' :'Wh-determiner',
+			'WP' :'Wh pronoun',
+			'WP$' :'Possessive-Wh',
+			'WRB' :'Wh-adverb'
+		};
 	
 	$("#partofspeech").append("<option value='part of speech'>part of speech</option>");
-	console.log(data.tags);
-	if(data.tags !== undefined){
-		for(key in data.tags){
-			//if(playerMode.authorData.tags.hasOwnProperty(key)){			
-				$("#partofspeech").append("<option value='"+data.tags[key].POSSuggestion+"'>"+data.tags[key].POSSuggestion+"</option>"); 
-				//}
+	if(playerMode.authorData.tags !== undefined){
+		for(key in playerMode.authorData.tags){
+				playerMode.saveArray.push("");
+			if(playerMode.authorData.tags.hasOwnProperty(key)){			
+				$("#partofspeech").append("<option value='"+playerMode.authorData.tags[key].POSSuggestion+"'>"+posList[playerMode.authorData.tags[key].POSSuggestion]+"</option>"); 
+			
+				newstory += "<li class='"+key+"'><input type='text' class='ui-widget-header'/><label>"+posList[playerMode.authorData.tags[key].POSSuggestion]+"</label><p>"+playerMode.authorData.tags[key].description+"</p></li>";
+				}
 		}
+	}
+	newstory = newstory + "</ul>";
+	playerMode.storyContainer.innerHTML = newstory;
+	console.log($("#playerform"));
+				
+	$("#leftColumn").append(playerMode.storyContainer);
+}
+
+playerMode.form.submitForm = function(){
+	if(!playerMode.form.validate(playerMode.saveArray)){
+	//alert message
+		$(".error").html("Please fill all the fields").show();	
+	}else{ //proceed
+	//update the article
+		alert("validate successfully");
+		for(var i=0; i<playerMode.saveArray.length;i++){
+			$("span#tag-"+(i+1),"div.body").html(playerMode.saveArray[i]);
+		}
+	//get new story
+		var playerStory = getDataFromHtml();
+	//save to database	
+		sendDataToAppEngine(playerStory);
+	//if saved successfully, show the story
+		$("div.body").show();
 	}
 }
 
@@ -54,9 +118,10 @@ playerMode.form.validate = function(data){ //data: playerMode.saveArray
 	var len = data.length;
 	for(var i = 0 ; i < len; i++ ){
 		if(!data[i]){
-			$(".error","#playerForm").html("Please fill all the fields").show();
+			return false;
 		}else{
 			//validate the matching of data type, todo
+			return true;
 		}
 	}
 }
@@ -98,14 +163,14 @@ playerMode.dragDropHelper.dragMode = function(){
 }
 
 playerMode.dragDropHelper.dropMode = function(){ 
-	var dropObject;
+/*	var dropObject;
 	if(!$("#currentIndex").html()){
 		dropObject = $("input.ui-widget-header");
 	}else{
 		dropObject = $("span.highlight:eq("+$("#currentIndex").html()+")");
-	}
+	}*/
 	//console.log($("#currentIndex").html());
-	dropObject.droppable({
+	$("input.ui-widget-header").droppable({
 		accept: ".draggable",
 		hoverClass: "drop-hover",
 		activeClass: "drop-active",
@@ -113,7 +178,7 @@ playerMode.dragDropHelper.dropMode = function(){
 		drop: function( event, ui ) {
 			//console.log($(this));
 			playerMode.dragDropHelper.dropBoolean = true;
-			var index = $("span.highlight").index($(this).parent());
+			var index = $("input","#playerform").index($(this));
 			$(this).val(playerMode.dragDropHelper.draggedValue);
 			//update the dropArray and inputArray in dragdrop mode
 			playerMode.form.updateArray(index,playerMode.dragDropHelper.draggedValue);
@@ -135,16 +200,14 @@ playerMode.autoSuggestHelper.init = function(){
 	playerMode.autoSuggestHelper.generateList();
 	
 	$("input.ui-widget-header").bind("focus",function(){
-		var currentIndex = $("span.highlight").index($(this).parent());
-		//if(currentIndex == -1){ currentIndex = 0;}
-			$("#currentIndex").html(currentIndex);
+		var currentIndex = $("input").index($(this));
 			$(this).val("").css("background","#fff");
 			$(".ui-autocomplete").children().remove();
 			playerMode.autoSuggestHelper.updateCategory(currentIndex+1);
 			
 	});
 	$("input.ui-widget-header").bind("keyup",function(){
-		var currentIndex = $("span.highlight").index($(this).parent());
+		var currentIndex = $("input","#playerform").index($(this));
 		playerMode.form.updateArray(currentIndex,$(this).val());
 		console.log(playerMode.saveArray);
 		//todo: add the auto suggestion based on the typed in content + the current tag desc, tag category
@@ -215,46 +278,20 @@ function consoleLog(){
 	console.log(playerMode.saveArray);
 }
 
-//authorObject stores the title, body, tags properties, tags are objects
 playerMode.init = function(data){
-  	//generate the playermode forms, and attach toolbar UI to onblur event
-  	//onblur open the toolbar, as user type, generate the auto-suggestion result
-	//init the droppable input
-	//click on the auto-suggested result, enable drag and drop
-	//auto-fill the whole form for user, random pick the words matching the partofspeech
-	//validate the fields(make sure is valid word) and submit form,close the toolbar.
-	
-	//playerMode.form.init(playerMode.authorData);
-	console.log(data);
-	playerMode.authorData = data;
-	
-	$("span.highlight").unbind("click");
-	for(var i=0; i<playerMode.form.elementSpan.length; i++){
-		playerMode.form.elementSpan[i].innerHTML = "<input type='text' class='ui-widget-header' value=''/>";
-		playerMode.saveArray[i] = "";
-	}
-	
-	$("#partofspeech").append("<option value='part of speech'>part of speech</option>");
-	console.log(playerMode.authorData);
-	if(playerMode.authorData.tags !== undefined){
-		for(key in playerMode.authorData.tags){
-			//if(playerMode.authorData.tags.hasOwnProperty(key)){			
-				$("#partofspeech").append("<option value='"+playerMode.authorData.tags[key].POSSuggestion+"'>"+playerMode.authorData.tags[key].POSSuggestion+"</option>"); 
-				
-				//}
-		}
-	}
+   playerMode.authorData = data;
+	$("div.body").hide();
+	playerMode.form.createInterface();
+   
 	playerMode.dragDropHelper.dropMode(); 
 	playerMode.autoSuggestHelper.init();
 	$("span","#auto-suggest").mousedown( playerMode.dragDropHelper.dragMode );
 	$("#autofill").click(playerMode.form.autofill);
-	//todo: submit button 
+	$("#submit").click(playerMode.form.submitForm);
 }
 
 playerMode.clear = function(){
 	playerMode.authorData = {};	
 	$("#partofspeech").html("");
-	//console.log(playerMode.authorData);
 }
-
 })();
