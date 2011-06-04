@@ -45,3 +45,13 @@ div.disabled {color: #ddd;}
     cursor:pointer;
     float:right;
  }
+ 
+#notifications {
+	background: #fffacd;
+	border: 2px solid #d2691e;
+	padding: 10px 10px;
+	float:center; 
+	width: 75%;
+	display: none;
+	margin: 0 auto;
+}

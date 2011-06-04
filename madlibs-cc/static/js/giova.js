@@ -1,6 +1,7 @@
 var getDataFromHtml,sendDataToAppEngine;
+var authorSave = false, tagSave = false, storySave = false;
 (function() {
-
+	
 // hide content and manuplation sections on load
 $('#leftColumn, #rightColumn').hide();
 
@@ -58,6 +59,8 @@ saveAuthorStory = function() {
         postId = objId;
         //return objId; //shanshan's edit
         console.log(postId);
+        notify('Your story has been saved. Move to the Tag tab to start tagging words!')
+        authorSave = true;
     });
 };
 
@@ -76,9 +79,10 @@ saveTaggedStory = function() {
    taggedStory = getDataFromHtml();
    sendDataToAppEngine(taggedStory, function(objId) {
        postId = objId;
+       notify('Your tags have been saved. Move to the Play tab to play the game!');
       //return objId; //shanshan's edit
       // console.log(postId);
-      
+       tagSave = true;
    });
 };
 
@@ -149,29 +153,53 @@ roleDetector = function() {
         toolbar = $('#toolbar'),
         autoFillButton = $('#autofill'),
         submitButton = $('#submit');
+ 
+   
+
+   var newRole = $(that).text();
     
-    if (that.hasClass('active')) {
+    logVar('newRole'); logVar('activeRole');
+    
+    if (activeRole == 'Author' && newRole == 'Tag' && !authorSave) {
+    	notify('You must save your story before moving to the Tag tab.');
+    	return false;
+    }
+	else if (activeRole == 'Author' && newRole == 'Play') {
+    	notify('You must save your story and tag it before moving to the Play tab.');
+    	return false;
+    }
+    else if (activeRole == 'Tag' && newRole == 'Play' && !tagSave) {
+    	notify('You must save your tags before moving to the Play tab.');
+    	return false;
+    }
+    
+ if (that.hasClass('active')) {
         return;
     } else {
         roles.removeClass('active');
         that.addClass('active');
     }
-
+    
     activeRole = $('header ul li a.active').text();
 
     if (activeRole === 'Author') {
+    	$('#notifications').fadeOut(500);
     	disableSelect();
         tagAndPlayerTemplate.hide();
         authorTemplate.show();
         $("div.body").show();
         playerMode.clear();
     } else if (activeRole === 'Tag') {
+    	
+    	$('#notifications').fadeOut(500);
+    	setTimeout( function () { notify("Welcome to Tag mode, where you select words that you want your friends to replace, called 'tags.' For each of these tags, you will provide a part of speech to help them choose the right type of word.<br/><br/>To create a tag, highlight a word and fill in the box that appears.  Make sure to select the correct part of speech for your words.  We will try to guess the part of speech automatically, but you can change it to whatever you want.<br/><br/>If you'd like, you can enter a description to help your friends along.<br/><br/>Once you are finished creating tags, click Save Story.")}, 500);
     	enableSelect();
     	$('#mainContainer').removeClass('disabled');
 		//$('#mainContainer').unbind('mousedown');
 		
 		$('#mainContainer').bind('mouseup', 
 			function () { authorMode.selectionHandler(); } );
+		
         authorTemplate.hide();
         autoFillButton.hide();
         submitButton.hide();
@@ -182,6 +210,9 @@ roleDetector = function() {
         tagAndPlayerTemplate.show();
         playerMode.clear();
     } else if (activeRole === 'Play') {
+    	$('#notifications').fadeOut(500);
+    	setTimeout( function () { notify("Welcome to Play mode. Here, have a friend fill in each of the blanks provided below using the part of speech guidance you set in the Tag tab.<br/><br/>You can get suggestions for words by typing a few letters and looking at the list on the right. If you see a word you like, simply drag and drop it into the space!<br/><br/>After all blanks are filled, click Submit to read the new story!")}, 500);
+    	setTimeout( function () { notify()});
     	  disableSelect();
         authorTemplate.hide();
         saveButton.hide();
@@ -190,6 +221,7 @@ roleDetector = function() {
         submitButton.show();
         toolbar.show();
         tagAndPlayerTemplate.show();
+        
       // if(playerMode.authorData.tags === undefined){
         		getDataFromAppEngine(postId, function(data){
 						playerMode.init(data); 
@@ -209,4 +241,9 @@ roles.bind('click', roleDetector);
 submitButton.bind('click', saveAuthorStory);
 deleteButton.bind('click', clearTaggedStory);
 
+notify('Welcome to Vippits! Vippits is a word game you can play with your friends.  To play Vippits, you create a story, select pieces of it that you want your friends to replace with specific types of words (nouns, adjectives, and so on), and then share the tagged story with your friends to play.');
+setTimeout(function () {
+	notify("You are currently in Author mode, which will allow you to create a story.  To begin, type your story's title and body text.<br/><br/>Once you are finished, click Save Story to move to the Tag mode.");
+	}, 8000);
+activeRole = 'Author';
 })();
