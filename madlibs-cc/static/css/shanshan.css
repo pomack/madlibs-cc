@@ -14,7 +14,7 @@
 #toolbar #auto-suggest{
 	
 }*/
-
+#toolbar h2 { font-size: 18px;font-weight: bold; text-align: center; background: url('images/hat.jpg') left center no-repeat; padding: 25px 0;}
 /*text fields*/
 .highlight{
 }
@@ -46,7 +46,7 @@
 }
 	
 /*auto suggest*/
-#auto-suggest{position:relative;}
+#auto-suggest{position:relative;margin-top:1em;}
 .ui-autocomplete-loading { background: white url('images/ui-anim_basic_16x16.gif') right center no-repeat; }
 #suggestion { width: 300px; }
 	
@@ -54,9 +54,10 @@
 	display:block !important;
 	list-style:none !important;
 	position: absolute;
-	left: 0 !important;
+	left: 20px !important;
 	top: 0 !important;
 }
+.ui-menu-item{width:280px;}
 
 /**/
 #leftColumn article{width:100%;margin-bottom:20px;}

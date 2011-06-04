@@ -198,6 +198,9 @@ playerMode.dragDropHelper.dropMode = function(){
 playerMode.autoSuggest = function(event){
 	var currenttagid = $(this).parent().parent().attr("class");
 	console.log(currenttagid);
+	if(playerMode.authorData.tags[currenttagid].POSSuggestion === "Phrase"){
+		$("#auto-suggest").append("<p>Sorry, there is no suggestion for Phrase</p>");	
+	}else{
 	$( this ).autocomplete({
 			source:function( request, response ) {
 				$.ajax({
@@ -207,9 +210,16 @@ playerMode.autoSuggest = function(event){
 					success: function( data ) {
 						console.log(data);
 						response( $.map( data.words, function( item ) {
-							return {
-								label: item.text,
-								value: item.text
+							if(item){
+								return {
+									label: item.text,
+									value: item.text
+								}
+							}else{
+								return {
+									label: "No Result",
+									value: "No Result"								
+								}							
 							}
 						}));
 					},
@@ -229,6 +239,7 @@ playerMode.autoSuggest = function(event){
 				playerMode.dragDropHelper.dragMode();
 			}
 		});
+	}
 }
 
 function consoleLog(){
