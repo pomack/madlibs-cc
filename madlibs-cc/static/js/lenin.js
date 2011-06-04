@@ -233,6 +233,7 @@ authorMode.editTag = function(id) {
 		
 		$('#tagPOS option').remove().attr('disabled', true);
 		$('#tagPOS').append('<option selected value="">Loading...</option>');
+		$('#posspin').show();
 		var pos = $.ajax({
 					url: "/find/?text="+authorMode.Tags[id].originalValue,
 					type: "GET",
@@ -292,6 +293,7 @@ authorMode.editTag = function(id) {
 						for (var i in posList) {
 							$('#tagPOS').append('<option value="' + i + '">' + posList[i] + '</option>');	
 						}
+						$('#posspin').hide();
 						$('#tagPOS').removeAttr('disabled');
 					}
 				});

@@ -69,7 +69,7 @@ playerMode.form.createInterface = function(){ //data: author tagged object
 			if(playerMode.authorData.tags.hasOwnProperty(key)){			
 				$("#partofspeech").append("<option value='"+playerMode.authorData.tags[key].POSSuggestion+"'>"+posList[playerMode.authorData.tags[key].POSSuggestion]+"</option>"); 
 			
-				newstory += "<li class='"+key+"'><p><span>Part of Speech:</span> "+posList[playerMode.authorData.tags[key].POSSuggestion]+"</p><p><span>Your word:</span> <input type='text' class='ui-widget-header ui-autocomplete-input'/></p><p><span>Description:</span> "+playerMode.authorData.tags[key].description+"</p></li>";
+				newstory += "<li class='"+key+"'><p><span>Part of Speech:</span> "+posList[playerMode.authorData.tags[key].POSSuggestion]+"</p><p><span>Your word:</span> <input type='text' id='tag-blank-" +key + "' class='ui-widget-header ui-autocomplete-input'/></p><p><span>Description:</span> "+playerMode.authorData.tags[key].description+"</p></li>";
 				}
 		}
 	}
@@ -101,25 +101,27 @@ playerMode.form.submitForm = function(){
 		$("button.standard_button").hide();
 	}
 }
+var spinQueue = 0;
+playerMode.assignRandomWord = function (pos, key) {
+	
+	var randomWord = '';
+	spinQueue++;
+	$('#autofillspin').show();
+	$.getJSON("/find/?category="+pos, function(data) {
+		if (data.words && data.words.length > 0 ) {
+			var idx = Math.ceil(Math.random()*data.words.length)-1;
+			randomWord = (data.words[idx].text);
+			$('#tag-blank-'+key).val(randomWord);
+			if (--spinQueue == 0) $('#autofillspin').hide();
+		} 
+	});
+}
 
 playerMode.form.autofill = function(){
 		//var randomNum = Math.ceil(Math.random()*data.words.length);
-		var randomArray = [];
-		for(key in playerMode.authorData.tags){
-			//console.log(playerMode.authorData.tags[key].id);
-			$.getJSON("http://madlibs-cc.appspot.com/find/?category="+playerMode.authorData.tags[key].POSSuggestion, function(data) 				{ 
-				if(data.words.length > 1){
-						randomArray.push(data.words[Math.ceil(Math.random()*data.words.length)].text);
-						//$("li."+playerMode.authorData.tags[key].id).find("input").val(data.words[Math.ceil(Math.random()*data.words.length)].text);
-					}else{
-						//$("li."+playerMode.authorData.tags[key].id).find("input").val("Please type in here").css("background","red");
-						randomArray.push("");	
-					}
-				});
-		}
-		for(var i=0;i<randomArray.length;i++){
-			console.log(randomArray[i]);
-			//$("li."+randomArray[i].key).find("input").val(randomArray[i].);		
+		
+		for(key in playerMode.authorData.tags) {
+			playerMode.assignRandomWord(playerMode.authorData.tags[key].POSSuggestion, key);
 		}
 }
 	
