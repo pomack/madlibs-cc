@@ -67,7 +67,7 @@ playerMode.form.createInterface = function(){ //data: author tagged object
 		for(key in playerMode.authorData.tags){
 				playerMode.saveArray.push("");
 			if(playerMode.authorData.tags.hasOwnProperty(key)){			
-				$("#partofspeech").append("<option value='"+playerMode.authorData.tags[key].POSSuggestion+"'>"+posList[playerMode.authorData.tags[key].POSSuggestion]+"</option>"); 
+				//$("#partofspeech").append("<option value='"+playerMode.authorData.tags[key].POSSuggestion+"'>"+posList[playerMode.authorData.tags[key].POSSuggestion]+"</option>"); 
 			
 				newstory += "<li class='"+key+"'><p><span>Part of Speech:</span> "+posList[playerMode.authorData.tags[key].POSSuggestion]+"</p><p><span>Your word:</span> <input type='text' id='tag-blank-" +key + "' class='ui-widget-header ui-autocomplete-input'/></p><p><span>Description:</span> "+playerMode.authorData.tags[key].description+"</p></li>";
 				}
@@ -112,6 +112,13 @@ playerMode.assignRandomWord = function (pos, key) {
 			var idx = Math.ceil(Math.random()*data.words.length)-1;
 			randomWord = (data.words[idx].text);
 			$('#tag-blank-'+key).val(randomWord);
+			if(pos === "Phrase"){
+				playerMode.saveArray[Number(key.replace("tag-",""))] = "";
+				$('#tag-blank-'+key).addClass("backgroundred");
+			}else{
+				playerMode.saveArray[Number(key.replace("tag-",""))] = randomWord;
+			}
+			console.log(playerMode.saveArray);
 			if (--spinQueue == 0) $('#autofillspin').hide();
 		} 
 	});
@@ -198,10 +205,11 @@ playerMode.dragDropHelper.dropMode = function(){
 
 
 playerMode.autoSuggest = function(event){
+	$(this).removeClass("backgroundred");
 	var currenttagid = $(this).parent().parent().attr("class");
 	console.log(currenttagid);
-	if(playerMode.authorData.tags[currenttagid].POSSuggestion === "Phrase"){
-		$("#auto-suggest").append("<p>Sorry, there is no suggestion for Phrase</p>");	
+	if(playerMode.authorData.tags[currenttagid].POSSuggestion === "Phrase" && !$("#auto-suggest").html()){
+		$("#auto-suggest").append("<p style='margin-left:20px'>Sorry, there is no suggestion for Phrase</p>");	
 	}else{
 	$( this ).autocomplete({
 			source:function( request, response ) {
