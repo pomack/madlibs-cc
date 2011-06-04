@@ -47,7 +47,7 @@
 	
 /*auto suggest*/
 #auto-suggest{position:relative;margin-top:1em !important;}
-.ui-autocomplete-loading { background: white url('images/ui-anim_basic_16x16.gif') right center no-repeat; }
+.ui-autocomplete-loading { background: white url('../images/ui-anim_basic_16x16.gif') right center no-repeat; }
 #suggestion { width: 300px; }
 	
 .ui-autocomplete{

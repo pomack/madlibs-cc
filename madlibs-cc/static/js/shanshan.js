@@ -65,11 +65,11 @@ playerMode.form.createInterface = function(){ //data: author tagged object
 	$("#partofspeech").append("<option value='part of speech'>part of speech</option>");
 	if(playerMode.authorData.tags !== undefined){
 		for(key in playerMode.authorData.tags){
-				playerMode.saveArray.push("");
+				//playerMode.saveArray.push("");
 			if(playerMode.authorData.tags.hasOwnProperty(key)){			
 				//$("#partofspeech").append("<option value='"+playerMode.authorData.tags[key].POSSuggestion+"'>"+posList[playerMode.authorData.tags[key].POSSuggestion]+"</option>"); 
 			
-				newstory += "<li class='"+key+"'><p><span>Part of Speech:</span> "+posList[playerMode.authorData.tags[key].POSSuggestion]+"</p><p><span>Your word:</span> <input type='text' id='tag-blank-" +key + "' class='ui-widget-header ui-autocomplete-input'/></p><p><span>Description:</span> "+playerMode.authorData.tags[key].description+"</p></li>";
+				newstory += "<li class='"+key+"'><p><span>Part of Speech:</span> "+posList[playerMode.authorData.tags[key].POSSuggestion]+"</p><p><span>Your word:</span> <input type='text' value='' id='tag-blank-" +key + "' class='ui-widget-header ui-autocomplete-input'/></p><p><span>Description:</span> "+playerMode.authorData.tags[key].description+"</p></li>";
 				}
 		}
 	}
@@ -81,9 +81,15 @@ playerMode.form.createInterface = function(){ //data: author tagged object
 }
 
 playerMode.form.submitForm = function(){
-	//if(!playerMode.form.validate(playerMode.saveArray)){
+	//console.log(playerMode.saveArray);
+	console.log($("input","#playerform").length);
+	for(var i=0;i<$("input","#playerform").length;i++){
+		playerMode.saveArray[i] = $("input:eq("+i+")","#playerform").val();
+	}
+	console.log(playerMode.saveArray);
+	if(!playerMode.form.validate(playerMode.saveArray)){
 		$(".error").html("Please fill all the fields").show();	
-	//}else{ //proceed
+	}else{ //proceed
 	//update the article
 		//alert("validate successfully");
 		$("div.body").clone().removeClass("body").addClass("userstory").appendTo($("article"));
@@ -99,7 +105,7 @@ playerMode.form.submitForm = function(){
 		$("#playerform").remove();
 		$("#toolbar").hide();
 		$("button.standard_button").hide();
-	//}
+	}
 }
 var spinQueue = 0;
 playerMode.assignRandomWord = function (pos, key) {
@@ -107,22 +113,25 @@ playerMode.assignRandomWord = function (pos, key) {
 	var randomWord = '';
 	spinQueue++;
 	$('#autofillspin').show();
+	if(pos === "Phrase"){
+				console.log(Number(key.replace("tag-","")));
+				playerMode.saveArray[Number(key.replace("tag-",""))] = "";
+				$('#tag-blank-'+key).addClass("backgroundred");
+	}else{
+				
 	$.getJSON("/find/?category="+pos, function(data) {
 		if (data.words && data.words.length > 0 ) {
 			var idx = Math.ceil(Math.random()*data.words.length)-1;
 			randomWord = (data.words[idx].text);
 			$('#tag-blank-'+key).val(randomWord);
-			if(pos === "Phrase"){
-				console.log(Number(key.replace("tag-","")));
-				playerMode.saveArray[Number(key.replace("tag-",""))] = "";
-				$('#tag-blank-'+key).addClass("backgroundred");
-			}else{
-				playerMode.saveArray[Number(key.replace("tag-",""))] = randomWord;
-			}
-			console.log(playerMode.saveArray);
+			playerMode.saveArray[Number(key.replace("tag-",""))] = randomWord;
+	
+			//console.log(playerMode.saveArray);
 			if (--spinQueue == 0) $('#autofillspin').hide();
 		} 
 	});
+	}
+	console.log(playerMode.saveArray);
 }
 
 playerMode.form.autofill = function(){
@@ -208,7 +217,9 @@ playerMode.dragDropHelper.dropMode = function(){
 playerMode.autoSuggest = function(event){
 	$(this).removeClass("backgroundred");
 	var currenttagid = $(this).parent().parent().attr("class");
+	var currentIndex = $(this).index($(".ui-widget-header","#playerform"));
 	console.log(currenttagid);
+	//playerMode.form.updateArray(currentIndex,$(this).val());
 	if(playerMode.authorData.tags[currenttagid].POSSuggestion === "Phrase" && !$("#auto-suggest").html()){
 		$("#auto-suggest").append("<p style='margin-left:20px'>Sorry, there is no suggestion for Phrase</p>");	
 	}else{
@@ -264,6 +275,7 @@ playerMode.init = function(data){
    
 	playerMode.dragDropHelper.dropMode(); 
 	//playerMode.autoSuggestHelper.init();
+	
 	$("input","#playerform").keyup(playerMode.autoSuggest);
 	$("input","#playerform").focus(function(){
 		$(".ui-autocomplete").remove();		
