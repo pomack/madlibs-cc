@@ -14,7 +14,7 @@
 #toolbar #auto-suggest{
 	
 }*/
-#toolbar h2 { font-size: 18px;font-weight: bold; text-align: center; background: url('images/hat.jpg') left center no-repeat; padding: 25px 0;}
+#toolbar h2 { font-size: 18px;font-weight: bold; text-align: center; background: url('../images/hat.jpg') left center no-repeat; padding: 25px 0 25px 30px;}
 /*text fields*/
 .highlight{
 }
@@ -46,7 +46,7 @@
 }
 	
 /*auto suggest*/
-#auto-suggest{position:relative;margin-top:1em;}
+#auto-suggest{position:relative;margin-top:1em !important;}
 .ui-autocomplete-loading { background: white url('images/ui-anim_basic_16x16.gif') right center no-repeat; }
 #suggestion { width: 300px; }
 	

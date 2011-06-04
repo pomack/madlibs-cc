@@ -256,6 +256,9 @@ playerMode.init = function(data){
 	playerMode.dragDropHelper.dropMode(); 
 	//playerMode.autoSuggestHelper.init();
 	$("input","#playerform").keyup(playerMode.autoSuggest);
+	$("input","#playerform").focus(function(){
+		$(".ui-autocomplete").remove();		
+		});
 	$("span","#auto-suggest").mousedown( playerMode.dragDropHelper.dragMode );
 	$("#autofill").click(playerMode.form.autofill);
 	$("#submit").click(playerMode.form.submitForm);
