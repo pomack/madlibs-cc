@@ -81,9 +81,9 @@ playerMode.form.createInterface = function(){ //data: author tagged object
 }
 
 playerMode.form.submitForm = function(){
-	if(!playerMode.form.validate(playerMode.saveArray)){
+	//if(!playerMode.form.validate(playerMode.saveArray)){
 		$(".error").html("Please fill all the fields").show();	
-	}else{ //proceed
+	//}else{ //proceed
 	//update the article
 		//alert("validate successfully");
 		$("div.body").clone().removeClass("body").addClass("userstory").appendTo($("article"));
@@ -99,7 +99,7 @@ playerMode.form.submitForm = function(){
 		$("#playerform").remove();
 		$("#toolbar").hide();
 		$("button.standard_button").hide();
-	}
+	//}
 }
 var spinQueue = 0;
 playerMode.assignRandomWord = function (pos, key) {
@@ -113,6 +113,7 @@ playerMode.assignRandomWord = function (pos, key) {
 			randomWord = (data.words[idx].text);
 			$('#tag-blank-'+key).val(randomWord);
 			if(pos === "Phrase"){
+				console.log(Number(key.replace("tag-","")));
 				playerMode.saveArray[Number(key.replace("tag-",""))] = "";
 				$('#tag-blank-'+key).addClass("backgroundred");
 			}else{
