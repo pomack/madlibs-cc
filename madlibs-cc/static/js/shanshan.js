@@ -82,7 +82,7 @@ playerMode.form.createInterface = function(){ //data: author tagged object
 
 playerMode.form.submitForm = function(){
 	//if(!playerMode.form.validate(playerMode.saveArray)){
-		$(".error").html("Please fill all the fields").show();	
+		// $(".error").html("Please fill all the fields").show();	
 	//}else{ //proceed
 	//update the article
 		//alert("validate successfully");
