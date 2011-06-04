@@ -9,6 +9,13 @@ function Status(t) {
 	});
 }
 
+function notify(txt) {
+	
+	$('#notifications').html(txt);
+	$('#notifications').fadeIn(500);
+	setTimeout(function () { $('#notifications').fadeOut(500);}, 7000);
+
+}
 function countWords(s) {
 	var x = s;
 	while (x.indexOf('  ') >= 0) {
@@ -224,6 +231,8 @@ authorMode.editTag = function(id) {
 			'WP$' :'Possessive-Wh',
 			'WRB' :'Wh-adverb'
 		};
+		
+	
 	// if this is a new tag, add it to the Tags object
 	$('#authorModeToolboxRemoveButton').hide();
 	if (!authorMode.Tags[id]) {
