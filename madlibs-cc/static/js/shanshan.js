@@ -172,13 +172,6 @@ playerMode.dragDropHelper.dragMode = function(){
 }
 
 playerMode.dragDropHelper.dropMode = function(){ 
-/*	var dropObject;
-	if(!$("#currentIndex").html()){
-		dropObject = $("input.ui-widget-header");
-	}else{
-		dropObject = $("span.highlight:eq("+$("#currentIndex").html()+")");
-	}*/
-	//console.log($("#currentIndex").html());
 	$("input.ui-widget-header").droppable({
 		accept: ".draggable",
 		hoverClass: "drop-hover",
@@ -201,87 +194,6 @@ playerMode.dragDropHelper.dropMode = function(){
 	});
 }
 
-//auto search object: populate results, enable dragging
-/*
-playerMode.autoSuggestHelper.init = function(){
-	$( "#suggestion" ).val("Please Select a Category").attr("disabled",true).css("background","#ccc");
-	//playerMode.autoSuggestHelper.generateCat(returnedTagObject);
-	playerMode.autoSuggestHelper.generateList();
-	
-	$("input.ui-widget-header").bind("focus",function(){
-		var currentIndex = $("input").index($(this));
-			$(this).val("").css("background","#fff");
-			$(".ui-autocomplete").children().remove();
-			playerMode.autoSuggestHelper.updateCategory(currentIndex+1);
-			
-	});
-	$("input.ui-widget-header").bind("keyup",function(){
-		var currentIndex = $("input","#playerform").index($(this));
-		playerMode.form.updateArray(currentIndex,$(this).val());
-		console.log(playerMode.saveArray);
-		//todo: add the auto suggestion based on the typed in content + the current tag desc, tag category
-	});
-	
-}*/
-/*
-playerMode.autoSuggestHelper.updateCategory = function(index){
-	$("option","select#partofspeech").removeAttr('selected').eq(index).attr("selected",true);
-		
-	if($("option:selected","#partofspeech").val() === "Phrase"){
-		$("#suggestion").val("Please type in by yourself for Phrase").attr('disabled','true').css("background","#ccc");
-		
-	}else if( $("option:selected","#partofspeech").val() === "" ){
-		$("#suggestion").val("Please Selcted a Category").attr('disabled','true').css("background","#ccc");
-		
-	}else{
-		$( "#suggestion" ).val("").removeAttr("disabled").css("background","#fff");	
-			
-	}
-}*/
-/*
-playerMode.autoSuggestHelper.generateList = function(){ 
-	
-	$("#partofspeech").bind("change",function(){
-		//var currentIndex = $(this);
-		$("#currentIndex").html("");
-		var index = $("option").index($(this).children(":selected"));
-		console.log(index);
-		playerMode.autoSuggestHelper.updateCategory(index);
-	});
-	
-	$( "#suggestion" ).autocomplete({
-			source:function( request, response ) {
-				$.ajax({
-					url: "http://madlibs-cc.appspot.com/find/?category="+$("option:selected","#partofspeech").val()+"&text="+request.term,
-					type: "GET",
-					dataType: "json",
-					success: function( data ) {
-						console.log(data);
-						response( $.map( data.words, function( item ) {
-							return {
-								label: item.text,
-								value: item.text
-							}
-						}));
-					},
-					error:function(jqXHR, textStatus, errorThrown){
-						alert(textStatus);
-					}
-				});
-			},
-			minLength: 2,
-			autoFocus: true,
-			appendTo: "#auto-suggest",
-			search: function( event, ui ) {
-				console.log(this.value); //input value
-			},
-			open: function( event, ui ){
-				$("li>a","#auto-suggest").addClass("draggable");
-				playerMode.dragDropHelper.dragMode();
-			}
-		});
-		
-}*/
 
 playerMode.autoSuggest = function(event){
 	var currenttagid = $(this).parent().parent().attr("class");
@@ -289,7 +201,7 @@ playerMode.autoSuggest = function(event){
 	$( this ).autocomplete({
 			source:function( request, response ) {
 				$.ajax({
-					url: "http://madlibs-cc.appspot.com/find/?category="+playerMode.authorData.tags[currenttagid].POSSuggestion+"&text="+request.term,
+					url: "/find/?category="+playerMode.authorData.tags[currenttagid].POSSuggestion+"&text="+request.term,
 					type: "GET",
 					dataType: "json",
 					success: function( data ) {
