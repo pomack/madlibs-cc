@@ -81,6 +81,11 @@ playerMode.form.createInterface = function(){ //data: author tagged object
 }
 
 playerMode.form.submitForm = function(){
+<<<<<<< HEAD
+	//if(!playerMode.form.validate(playerMode.saveArray)){
+		// $(".error").html("Please fill all the fields").show();	
+	//}else{ //proceed
+=======
 	//console.log(playerMode.saveArray);
 	console.log($("input","#playerform").length);
 	for(var i=0;i<$("input","#playerform").length;i++){
@@ -90,6 +95,7 @@ playerMode.form.submitForm = function(){
 	if(!playerMode.form.validate(playerMode.saveArray)){
 		$(".error").html("Please fill all the fields").show();	
 	}else{ //proceed
+>>>>>>> f60a17a99091f1b22d40a57c4112b9e36be25c81
 	//update the article
 		//alert("validate successfully");
 		$("div.body").clone().removeClass("body").addClass("userstory").appendTo($("article"));
