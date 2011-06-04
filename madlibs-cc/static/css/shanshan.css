@@ -1,5 +1,6 @@
 /*Shanshan*/
 /*layout*/
+/*
 #mainContainer{
 	width:500px;
 	float:left;
@@ -12,7 +13,7 @@
 
 #toolbar #auto-suggest{
 	
-}
+}*/
 
 /*text fields*/
 .highlight{
@@ -20,11 +21,7 @@
 .tagthis{
 	/*text-indent:-9999em;*/
 }
-.lightup{
-	background:blue;
-}
 /*draggable*/
-span p{color:blue;}
 #auto-suggest li{
 	border:1px solid #ccc;
 	margin-bottom:1px;
@@ -49,16 +46,27 @@ span p{color:blue;}
 }
 	
 /*auto suggest*/
+#auto-suggest{position:relative;}
 .ui-autocomplete-loading { background: white url('images/ui-anim_basic_16x16.gif') right center no-repeat; }
-	#suggestion { width: 300px; }
+#suggestion { width: 300px; }
 	
 .ui-autocomplete{
 	display:block !important;
 	list-style:none !important;
+	position: absolute;
+	left: 0 !important;
+	top: 0 !important;
 }
 
 /**/
 #leftColumn article{width:100%;margin-bottom:20px;}
 #leftColumn button{float:right;}
-#leftColumn #playerform li{width:100%;}
-#leftColumn #playerform li label{width:40%;margin-left:10px;}
+#leftColumn #playerform{background:black;color:white;clear:both;}
+#leftColumn #playerform ul{padding:20px;}
+#leftColumn #playerform li{width:100%;padding:20px 0;border-bottom:1px solid #6e6e6e;}
+#leftColumn #playerform li p{margin-bottom:5px;}
+#leftColumn #playerform li p span{width:30%;display:block;float:left;}
+#leftColumn #playerform li input{border:none;}
+
+/*alerts*/
+.error{color:red;}

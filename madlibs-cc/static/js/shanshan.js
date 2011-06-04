@@ -69,48 +69,57 @@ playerMode.form.createInterface = function(){ //data: author tagged object
 			if(playerMode.authorData.tags.hasOwnProperty(key)){			
 				$("#partofspeech").append("<option value='"+playerMode.authorData.tags[key].POSSuggestion+"'>"+posList[playerMode.authorData.tags[key].POSSuggestion]+"</option>"); 
 			
-				newstory += "<li class='"+key+"'><input type='text' class='ui-widget-header'/><label>"+posList[playerMode.authorData.tags[key].POSSuggestion]+"</label><p>"+playerMode.authorData.tags[key].description+"</p></li>";
+				newstory += "<li class='"+key+"'><p><span>Part of Speech:</span> "+posList[playerMode.authorData.tags[key].POSSuggestion]+"</p><p><span>Your word:</span> <input type='text' class='ui-widget-header ui-autocomplete-input'/></p><p><span>Description:</span> "+playerMode.authorData.tags[key].description+"</p></li>";
 				}
 		}
 	}
-	newstory = newstory + "</ul>";
-	playerMode.storyContainer.innerHTML = newstory;
-	console.log($("#playerform"));
-				
+	newstory = newstory + "</ul> <button id='submit' type='submit' class='standard_button'>Submit</button>";
+	playerMode.storyContainer.innerHTML = newstory;			
 	$("#leftColumn").append(playerMode.storyContainer);
+	
+	//todo: bind functions to the input field object
 }
 
 playerMode.form.submitForm = function(){
 	if(!playerMode.form.validate(playerMode.saveArray)){
-	//alert message
 		$(".error").html("Please fill all the fields").show();	
 	}else{ //proceed
 	//update the article
-		alert("validate successfully");
+		//alert("validate successfully");
+		$("div.body").clone().removeClass("body").addClass("userstory").appendTo($("article"));
 		for(var i=0; i<playerMode.saveArray.length;i++){
-			$("span#tag-"+(i+1),"div.body").html(playerMode.saveArray[i]);
+			$("span#tag-"+(i+1),"div.userstory").html(playerMode.saveArray[i]);
 		}
 	//get new story
 		var playerStory = getDataFromHtml();
 	//save to database	
 		sendDataToAppEngine(playerStory);
 	//if saved successfully, show the story
-		$("div.body").show();
+		$("div.userstory").show(1000);
+		$("#playerform").remove();
+		$("#toolbar").hide();
+		$("button.standard_button").hide();
 	}
 }
 
 playerMode.form.autofill = function(){
 		//var randomNum = Math.ceil(Math.random()*data.words.length);
+		var randomArray = [];
 		for(key in playerMode.authorData.tags){
-			//console.log("key:"+playerMode.authorData.tags[key]);
-			$.getJSON("http://madlibs-cc.appspot.com/find/?category="+playerMode.authorData.tags[key].POSSuggestion, function(data) 				{ console.log(playerMode.authorData.tags[key].POSSuggestion);
-					//console.log("map i"+i);
-					if(data.words.length > 1){
-						$("span#"+playerMode.authorData.tags[key].id).find("input").val(data.words[Math.ceil(Math.random()*data.words.length)].text);
+			//console.log(playerMode.authorData.tags[key].id);
+			$.getJSON("http://madlibs-cc.appspot.com/find/?category="+playerMode.authorData.tags[key].POSSuggestion, function(data) 				{ 
+				if(data.words.length > 1){
+						randomArray.push(data.words[Math.ceil(Math.random()*data.words.length)].text);
+						//$("li."+playerMode.authorData.tags[key].id).find("input").val(data.words[Math.ceil(Math.random()*data.words.length)].text);
 					}else{
-						$("span#"+playerMode.authorData.tags[key].id).find("input").val("Please type in here").css("background","red");	
+						//$("li."+playerMode.authorData.tags[key].id).find("input").val("Please type in here").css("background","red");
+						randomArray.push("");	
 					}
 				});
+		}
+		for(var i=0;i<randomArray.length;i++){
+			console.log(randomArray[i]);
+			//$("li."+randomArray[i].key).find("input").val(randomArray[i].);		
 		}
 }
 	
@@ -193,7 +202,7 @@ playerMode.dragDropHelper.dropMode = function(){
 }
 
 //auto search object: populate results, enable dragging
-
+/*
 playerMode.autoSuggestHelper.init = function(){
 	$( "#suggestion" ).val("Please Select a Category").attr("disabled",true).css("background","#ccc");
 	//playerMode.autoSuggestHelper.generateCat(returnedTagObject);
@@ -213,8 +222,8 @@ playerMode.autoSuggestHelper.init = function(){
 		//todo: add the auto suggestion based on the typed in content + the current tag desc, tag category
 	});
 	
-}
-
+}*/
+/*
 playerMode.autoSuggestHelper.updateCategory = function(index){
 	$("option","select#partofspeech").removeAttr('selected').eq(index).attr("selected",true);
 		
@@ -228,8 +237,8 @@ playerMode.autoSuggestHelper.updateCategory = function(index){
 		$( "#suggestion" ).val("").removeAttr("disabled").css("background","#fff");	
 			
 	}
-}
-
+}*/
+/*
 playerMode.autoSuggestHelper.generateList = function(){ 
 	
 	$("#partofspeech").bind("change",function(){
@@ -272,6 +281,42 @@ playerMode.autoSuggestHelper.generateList = function(){
 			}
 		});
 		
+}*/
+
+playerMode.autoSuggest = function(event){
+	var currenttagid = $(this).parent().parent().attr("class");
+	console.log(currenttagid);
+	$( this ).autocomplete({
+			source:function( request, response ) {
+				$.ajax({
+					url: "http://madlibs-cc.appspot.com/find/?category="+playerMode.authorData.tags[currenttagid].POSSuggestion+"&text="+request.term,
+					type: "GET",
+					dataType: "json",
+					success: function( data ) {
+						console.log(data);
+						response( $.map( data.words, function( item ) {
+							return {
+								label: item.text,
+								value: item.text
+							}
+						}));
+					},
+					error:function(jqXHR, textStatus, errorThrown){
+						alert(textStatus);
+					}
+				});
+			},
+			minLength: 2,
+			autoFocus: true,
+			appendTo: "#auto-suggest",
+			search: function( event, ui ) {
+				console.log(this.value); //input value
+			},
+			open: function( event, ui ){
+				$("li>a","#auto-suggest").addClass("draggable");
+				playerMode.dragDropHelper.dragMode();
+			}
+		});
 }
 
 function consoleLog(){
@@ -284,7 +329,8 @@ playerMode.init = function(data){
 	playerMode.form.createInterface();
    
 	playerMode.dragDropHelper.dropMode(); 
-	playerMode.autoSuggestHelper.init();
+	//playerMode.autoSuggestHelper.init();
+	$("input","#playerform").keyup(playerMode.autoSuggest);
 	$("span","#auto-suggest").mousedown( playerMode.dragDropHelper.dragMode );
 	$("#autofill").click(playerMode.form.autofill);
 	$("#submit").click(playerMode.form.submitForm);
@@ -293,5 +339,8 @@ playerMode.init = function(data){
 playerMode.clear = function(){
 	playerMode.authorData = {};	
 	$("#partofspeech").html("");
+	$("#playerform").remove();
+	$("div.userstory").hide();
+	
 }
 })();

@@ -178,6 +178,7 @@ roleDetector = function() {
         saveButton.show();
         deleteButton.show();
         toolbar.hide();
+        $("div.body").show();
         tagAndPlayerTemplate.show();
         playerMode.clear();
     } else if (activeRole === 'Play') {
