@@ -16,6 +16,7 @@
 #
 from google.appengine.ext import db, webapp
 from google.appengine.ext.webapp import util
+import os.path
 import decimal
 import random
 try:
@@ -453,7 +454,6 @@ class FindDictionaryEntryByWordHandler(webapp.RequestHandler):
 #
 class StoreDictionaryHandler(webapp.RequestHandler):
     def process(self):
-        print self.request.body
         arr = json.loads(self.request.body)
         if not arr:
             arr = []
@@ -474,8 +474,25 @@ class StoreDictionaryHandler(webapp.RequestHandler):
         self.process()
 
 
+#
 
 class MainHandler(webapp.RequestHandler):
+    index_html_value = None
+    def process(self):
+        self.redirect(u'/static/index.html')
+    
+    def get(self):
+        self.process()
+    
+    def post(self):
+        self.process()
+    
+    def head(self):
+        self.process()
+    
+    
+
+class StorageHandler(webapp.RequestHandler):
     def process(self):
         self.response.set_status(200)
         self.response.headers['Content-Type'] = 'text/html'
@@ -514,6 +531,7 @@ class MainHandler(webapp.RequestHandler):
 def main():
     application = webapp.WSGIApplication([
         ('/', MainHandler),
+        ('/storage/', StorageHandler),
         ('/list/', ListHandler),
         ('/view/', ViewHandler),
         (r'/view/(?P<id>\w+)/', ViewHandler),
